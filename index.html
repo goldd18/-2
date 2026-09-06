@@ -346,13 +346,66 @@ function navTo(p){location.hash=p}
 function loadJSON(k,fb){try{return JSON.parse(localStorage.getItem(k))||fb}catch(e){return fb}}
 function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
 function mergeSite(raw){const s=JSON.parse(JSON.stringify(DEFAULT_SITE)); if(!raw) return s; return Object.assign(s,raw,{brand:Object.assign({},DEFAULT_SITE.brand,raw.brand||{}),work:Object.assign({},DEFAULT_SITE.work,raw.work||{}),master:Object.assign({},DEFAULT_SITE.master,raw.master||{}),texts:Object.assign({},DEFAULT_SITE.texts,raw.texts||{}),structure:Object.assign({},DEFAULT_SITE.structure,raw.structure||{}),sms:Object.assign({},DEFAULT_SITE.sms,raw.sms||{})})}
+let cloudConfigured=null;
+function rememberCloud(data){
+  if(data && typeof data.configured==='boolean') cloudConfigured=data.configured;
+}
+function bookingsAreFull(data){
+  const all=[].concat(...Object.values(data||{}).map(a=>a||[]));
+  return !all.length || all.some(b=>b.phone||b.name);
+}
+function fillCloudBanner(){
+  const el=document.getElementById('cloudBanner');
+  if(!el) return;
+  if(cloudConfigured===false){
+    el.classList.remove('hidden');
+    el.innerHTML='<b>Изменения пока только на этом телефоне.</b> Vercel → Storage → Create → Blob Store → подключите проект cristal → Deployments → Redeploy. Затем ещё раз сохраните фото и тексты.';
+  } else {
+    el.classList.add('hidden');
+    el.textContent='';
+  }
+}
 function persistSite(){
   const phone=normPhone(site.adminPhone);
   site.credentialsHint=!(phone && phone!==DEF_PHONE && site.adminPassword && site.adminPassword!==DEF_PASS);
   saveJSON(K_SITE,site);
+  queueCloudSave({site:1});
 }
-function persistBk(){saveJSON(K_BK,bookings)}
-function persistClients(){saveJSON(K_CLIENTS,clients)}
+function persistBk(){saveJSON(K_BK,bookings); if(isStaff()) queueCloudSave({bookings:1})}
+function persistClients(){saveJSON(K_CLIENTS,clients); if(isStaff()) queueCloudSave({clients:1})}
+function isStaff(){const r=role||sessionStorage.getItem('mzRole')||''; return r==='master'||r==='dev'}
+function cloud(action, extra){
+  const payload=Object.assign({
+    action,
+    pass:sessionStorage.getItem('mzPass')||(site&&site.adminPassword)||'',
+    phone:sessionStorage.getItem('mzPhone')||(site&&site.adminPhone)||'',
+    devPass:role==='dev'?DEV_PASS:''
+  }, extra||{});
+  return fetch('/api/store',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+    .then(r=>r.json().catch(()=>({})))
+    .then(data=>{rememberCloud(data); return data;})
+    .catch(()=>({ok:false,error:'offline'}));
+}
+function queueCloudSave(parts){
+  if(!isStaff()) return;
+  queueCloudSave.parts=Object.assign(queueCloudSave.parts||{}, parts||{site:1,bookings:1,clients:1});
+  clearTimeout(queueCloudSave.t);
+  queueCloudSave.t=setTimeout(async ()=>{
+    const next=queueCloudSave.parts||{};
+    queueCloudSave.parts={};
+    const payload={};
+    if(next.site) payload.site=site;
+    if(next.bookings && bookingsAreFull(bookings)) payload.bookings=bookings;
+    if(next.clients) payload.clients=clients;
+    if(!payload.site && !payload.bookings && !payload.clients) return;
+    const data=await cloud('save', payload);
+    fillCloudBanner();
+    if(data&&data.ok) return;
+    if(data&&data.error==='no_store') showToast('Фото и правки не увидят другие: в Vercel создайте Storage → Blob и сделайте Redeploy');
+    else if(data&&data.error==='auth') return;
+    else showToast('Не удалось сохранить изменения на сайт');
+  },700);
+}
 function upsertClient(name,phone,note){
   const key=toByPhone(phone); if(key.length<12) return;
   if(!clients[key]) clients[key]={phone:key,name:name||'',note:'',visits:0,totalSpent:0,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
@@ -393,6 +446,9 @@ function setBookingStatus(id,status){
     });
   });
   persistBk(); rebuildClientsFromBookings();
+  const phone=(rec&&rec.phone)||(lastBooking&&lastBooking.id===id&&lastBooking.phone)||'';
+  if(isStaff()) cloud('status',{id,status});
+  else if(phone) cloud('cancel',{id,phone});
   if(status==='cancelled' && prev==='active' && rec) sendBookingSms('cancel',rec);
 }
 function exportBackup(){
@@ -676,9 +732,18 @@ async function submitBooking(){
   const note=document.getElementById('clientNote').value.trim();
   if(!name||!phone){showToast('Заполните имя и телефон'); return}
   const svc=site.services.find(s=>s.id===bstate.serviceId);
-  if(!bookings[bstate.date]) bookings[bstate.date]=[];
   const id='b'+Date.now();
-  bookings[bstate.date].push({id,time:bstate.time,name,phone,note,serviceId:svc.id,serviceName:svc.name,duration:svc.duration,price:svc.price,createdAt:new Date().toISOString(),reminderSent:false,status:'active'});
+  const rec={id,time:bstate.time,name,phone,note,serviceId:svc.id,serviceName:svc.name,duration:svc.duration,price:svc.price,createdAt:new Date().toISOString(),reminderSent:false,status:'active'};
+  const saved=await cloud('book',{date:bstate.date,booking:Object.assign({date:bstate.date},rec)});
+  if(saved&&saved.ok===false&&saved.error==='taken'){showToast('Это время уже заняли'); return}
+  if(isStaff()){
+    if(!bookings[bstate.date]) bookings[bstate.date]=[];
+    if(!bookings[bstate.date].some(b=>b.id===rec.id)) bookings[bstate.date].push(rec);
+  } else if(saved&&saved.bookings) bookings=saved.bookings;
+  else {
+    if(!bookings[bstate.date]) bookings[bstate.date]=[];
+    bookings[bstate.date].push(rec);
+  }
   persistBk();
   upsertClient(name,phone,note);
   lastBooking={date:bstate.date,id,phone,name,time:bstate.time,serviceName:svc.name,price:svc.price,note};
@@ -691,7 +756,7 @@ async function submitBooking(){
     : `${svc.name} — ${d.getDate()} ${MONTHS[d.getMonth()]} в ${bstate.time}. Запись сохранена.`;
   [1,2,3].forEach(i=>document.getElementById('step-'+i).classList.add('hidden'));
   document.getElementById('step-confirm').classList.remove('hidden');
-  showToast(smsOk?'Запись сохранена, SMS отправлено':smsFailHint(sms));
+  showToast(smsOk?'Запись сохранена, SMS отправлено':(saved&&saved.error==='no_store'?'Запись сохранена только в этом браузере':'Запись сохранена'));
 }
 function resetBookingFlow(){
   bstate.serviceId=null;bstate.date=null;bstate.time=null; fillPublic();
@@ -701,17 +766,27 @@ function resetBookingFlow(){
 function removeBooking(id){
   setBookingStatus(id,'cancelled');
 }
-function lookupBookings(){
+async function lookupBookings(){
   const phoneN=toByPhone(document.getElementById('lookupPhone').value); const results=document.getElementById('lookupResults');
   if(phoneN.length<12){showToast('Введите номер'); return}
-  const found=allBookingsFlat().filter(b=>toByPhone(b.phone)===phoneN && b.status==='active');
+  let found=allBookingsFlat().filter(b=>toByPhone(b.phone)===phoneN && b.status==='active');
+  if(!found.length){
+    const data=await cloud('lookup',{phone:phoneN});
+    found=(data&&data.found)||[];
+  }
   results.innerHTML='';
   if(!found.length){results.innerHTML='<p class="empty-note">Активных записей нет</p>'; return}
   found.forEach(b=>{
     const d=new Date(b.date+'T00:00:00'); const row=document.createElement('div'); row.className='my-booking-item';
     row.innerHTML=`<span>${escapeHtml(b.serviceName)}<br><span style="color:var(--faint)">${d.getDate()} ${MONTHS[d.getMonth()]}, ${b.time}</span></span>`;
     const btn=document.createElement('button'); btn.className='btn btn-sm btn-danger'; btn.textContent='Отменить';
-    btn.onclick=()=>{removeBooking(b.id); showToast('Отменено'); row.remove()};
+    btn.onclick=()=>{
+      if(!bookings[b.date]) bookings[b.date]=[];
+      const i=(bookings[b.date]||[]).findIndex(x=>x.id===b.id);
+      if(i>-1) bookings[b.date][i]=Object.assign({},bookings[b.date][i],b);
+      else bookings[b.date].push(b);
+      removeBooking(b.id); showToast('Отменено'); row.remove();
+    };
     row.appendChild(btn); results.appendChild(row);
   });
 }
@@ -741,20 +816,21 @@ function compressImage(file){
   return new Promise((resolve,reject)=>{
     const r=new FileReader(); r.onerror=reject; r.onload=()=>{
       const img=new Image(); img.onload=()=>{
-        const max=1000; let w=img.width,h=img.height; if(w>max||h>max){const k=Math.min(max/w,max/h); w=Math.round(w*k); h=Math.round(h*k)}
-        const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); resolve(c.toDataURL('image/jpeg',.78));
+        const max=800; let w=img.width,h=img.height; if(w>max||h>max){const k=Math.min(max/w,max/h); w=Math.round(w*k); h=Math.round(h*k)}
+        const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); resolve(c.toDataURL('image/jpeg',.7));
       }; img.src=r.result;
     }; r.readAsDataURL(file);
   });
 }
 
-function logout(){role=''; sessionStorage.removeItem('mzRole'); navTo('/')}
+function logout(){role=''; sessionStorage.removeItem('mzRole'); sessionStorage.removeItem('mzPass'); sessionStorage.removeItem('mzPhone'); navTo('/')}
 
 function renderMaster(){
   if(role!=='master'&&role!=='dev') return renderMasterLogin();
   document.getElementById('app').innerHTML=`<div class="cabinet">
     <div class="admin-topbar"><div class="wordmark">Кабинет мастера</div><div style="display:flex;gap:6px"><button class="btn btn-sm" id="toSite">Сайт</button><button class="btn btn-sm" id="logoutCab">Выйти</button></div></div>
     <div class="admin-body">
+      <div class="note-banner hidden" id="cloudBanner"></div>
       <div class="note-banner" id="reminderBanner"></div>
       <div class="stats-row" id="statsRow"></div>
       <div class="admin-tabs">
@@ -779,7 +855,7 @@ function renderMaster(){
       <div class="admin-panel" id="panel-clients">
         <div class="admin-card">
           <h3>База клиентов</h3>
-          <p class="hint-box" style="margin-top:0">Клиенты собираются автоматически по номеру телефона. Данные остаются у вас в браузере — сделайте резервную копию.</p>
+          <p class="hint-box" style="margin-top:0">Клиенты собираются по номеру. Правки сайта и фото публикуются для всех посетителей.</p>
           <div class="form-grid" style="margin-bottom:12px"><input class="cab-input" id="clientSearch" placeholder="Поиск по имени или телефону"></div>
           <div id="clientList"></div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
@@ -849,7 +925,7 @@ function renderMaster(){
     if(tab.dataset.tab==='clients') renderClients();
   });
   document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{bkFilter=btn.dataset.filter; renderAdminBookings()});
-  fillMaster(); renderAdminBookings(); renderStats();
+  fillMaster(); renderAdminBookings(); renderStats(); fillCloudBanner();
 }
 
 function renderMasterLogin(){
@@ -860,10 +936,29 @@ function renderMasterLogin(){
     <div class="form-grid"><input id="masterPhone" type="tel" placeholder="Номер"><input id="masterPass" type="password" placeholder="Пароль"></div>
     <button class="btn btn-fill btn-block" style="margin-top:14px" id="masterLoginBtn">Войти</button>${hint}</div></div></div>`;
   document.getElementById('toSite').onclick=()=>navTo('/');
-  document.getElementById('masterLoginBtn').onclick=()=>{
+  document.getElementById('masterLoginBtn').onclick=async ()=>{
     const phone=normPhone(document.getElementById('masterPhone').value);
     const pass=document.getElementById('masterPass').value;
-    if(phone===normPhone(site.adminPhone) && pass===site.adminPassword){role='master'; sessionStorage.setItem('mzRole','master'); renderMaster()}
+    const remote=await cloud('login',{phone,pass});
+    if(remote&&remote.ok){
+      if(remote.site) site=mergeSite(remote.site);
+      if(remote.bookings) bookings=remote.bookings;
+      if(remote.clients) clients=remote.clients;
+      sessionStorage.setItem('mzPass',pass);
+      sessionStorage.setItem('mzPhone',phone);
+      saveJSON(K_SITE,site); saveJSON(K_BK,bookings); saveJSON(K_CLIENTS,clients);
+      role='master'; sessionStorage.setItem('mzRole','master'); renderMaster();
+      fillCloudBanner();
+      if(!remote.site) queueCloudSave({site:1,bookings:1,clients:1});
+      return;
+    }
+    if(phone===normPhone(site.adminPhone) && pass===site.adminPassword){
+      sessionStorage.setItem('mzPass',pass);
+      sessionStorage.setItem('mzPhone',phone);
+      role='master'; sessionStorage.setItem('mzRole','master'); renderMaster();
+      fillCloudBanner();
+      queueCloudSave({site:1,bookings:1,clients:1});
+    }
     else showToast('Неверный номер или пароль');
   };
 }
@@ -872,7 +967,7 @@ function fillMaster(){
   const dt=document.getElementById('dayToggles'); dt.innerHTML='';
   WEEK.forEach(dow=>{
     const b=document.createElement('button'); b.type='button'; b.className='day-toggle'+((site.work.days||[]).includes(dow)?' on':''); b.textContent=DOW[dow];
-    b.onclick=()=>{const i=site.work.days.indexOf(dow); if(i>-1) site.work.days.splice(i,1); else site.work.days.push(dow); b.classList.toggle('on')};
+    b.onclick=()=>{const i=site.work.days.indexOf(dow); if(i>-1) site.work.days.splice(i,1); else site.work.days.push(dow); b.classList.toggle('on'); persistSite()};
     dt.appendChild(b);
   });
   document.getElementById('workStart').value=site.work.start; document.getElementById('workEnd').value=site.work.end; document.getElementById('slotStep').value=site.work.slot;
@@ -963,8 +1058,14 @@ function fillMaster(){
     showToast((data&&data.ok)?'Тестовое SMS отправлено':smsFailHint(data));
   };
   document.getElementById('saveProfile').onclick=()=>{
-    if(pLoginPhone.value.trim()) site.adminPhone=normPhone(pLoginPhone.value);
-    if(pNewPass.value.trim()) site.adminPassword=pNewPass.value.trim();
+    if(pLoginPhone.value.trim()){
+      site.adminPhone=normPhone(pLoginPhone.value);
+      sessionStorage.setItem('mzPhone',site.adminPhone);
+    }
+    if(pNewPass.value.trim()){
+      site.adminPassword=pNewPass.value.trim();
+      sessionStorage.setItem('mzPass',site.adminPassword);
+    }
     persistSite(); pNewPass.value=''; showToast('Вход сохранён'); fillMaster();
   };
 }
@@ -988,8 +1089,8 @@ function renderSvcEditList(){
       <label class="file-btn">Фото из галереи<input type="file" accept="image/*" class="img-file"></label>${s.img?`<img class="pf-thumb-mini" src="${escapeHtml(s.img)}" alt="">`:''}`;
     row.querySelector('.n-in').oninput=e=>s.name=e.target.value; row.querySelector('.desc-in').oninput=e=>s.desc=e.target.value;
     row.querySelector('.p-in').oninput=e=>s.price=Number(e.target.value)||0; row.querySelector('.d-in').oninput=e=>s.duration=Number(e.target.value)||0;
-    row.querySelector('.tiny-x').onclick=()=>{site.services=site.services.filter(x=>x.id!==s.id); renderSvcEditList()};
-    row.querySelector('.img-file').onchange=async e=>{const f=e.target.files[0]; if(!f) return; s.img=await compressImage(f); renderSvcEditList(); showToast('Загружено')};
+    row.querySelector('.tiny-x').onclick=()=>{site.services=site.services.filter(x=>x.id!==s.id); persistSite(); renderSvcEditList()};
+    row.querySelector('.img-file').onchange=async e=>{const f=e.target.files[0]; if(!f) return; s.img=await compressImage(f); persistSite(); renderSvcEditList(); showToast('Загружено')};
     wrap.appendChild(row);
   });
 }
@@ -1001,8 +1102,8 @@ function renderPfEditList(){
       <div style="flex:1;display:flex;flex-direction:column;gap:6px"><label class="file-btn">Из галереи<input type="file" accept="image/*" class="pf-file"></label>
       <input class="cab-input cap-in" value="${escapeHtml(p.caption||'')}" placeholder="Подпись"></div><button class="tiny-x" type="button">✕</button>`;
     row.querySelector('.cap-in').oninput=e=>p.caption=e.target.value;
-    row.querySelector('.tiny-x').onclick=()=>{site.portfolio=site.portfolio.filter(x=>x.id!==p.id); renderPfEditList()};
-    row.querySelector('.pf-file').onchange=async e=>{const f=e.target.files[0]; if(!f) return; p.url=await compressImage(f); renderPfEditList(); showToast('Загружено')};
+    row.querySelector('.tiny-x').onclick=()=>{site.portfolio=site.portfolio.filter(x=>x.id!==p.id); persistSite(); renderPfEditList()};
+    row.querySelector('.pf-file').onchange=async e=>{const f=e.target.files[0]; if(!f) return; p.url=await compressImage(f); persistSite(); renderPfEditList(); showToast('Загружено')};
     wrap.appendChild(row);
   });
 }
@@ -1095,18 +1196,51 @@ function renderDevLogin(){
     <button class="btn btn-fill btn-block" style="margin-top:12px" id="dBtn">Войти</button></div></div></div>`;
   document.getElementById('toSite').onclick=()=>navTo('/');
   document.getElementById('dBtn').onclick=()=>{
-    if(dLogin.value.trim()===DEV_LOGIN && dPass.value===DEV_PASS){role='dev'; sessionStorage.setItem('mzRole','dev'); renderDev()}
+    if(dLogin.value.trim()===DEV_LOGIN && dPass.value===DEV_PASS){
+      role='dev'; sessionStorage.setItem('mzRole','dev'); sessionStorage.setItem('mzPass',DEV_PASS); renderDev(); queueCloudSave();
+    }
     else showToast('Нет доступа');
   };
 }
 
-site=mergeSite(loadJSON(K_SITE,null));
-bookings=loadJSON(K_BK,{});
-clients=loadJSON(K_CLIENTS,{});
-rebuildClientsFromBookings();
-checkReminders();
-window.addEventListener('hashchange',route);
-route();
+(async function boot(){
+  document.getElementById('app').innerHTML='<div class="wrap" style="padding:72px 0;text-align:center;color:#777">Загрузка…</div>';
+  site=mergeSite(loadJSON(K_SITE,null));
+  bookings=loadJSON(K_BK,{});
+  clients=loadJSON(K_CLIENTS,{});
+  try{
+    const remote=await fetch('/api/store?t='+Date.now()).then(async r=>{
+      const data=await r.json().catch(()=>({}));
+      return Object.assign({ok:r.ok,configured:!!(data&&data.configured)}, data);
+    }).catch(()=>({ok:false,configured:false}));
+    rememberCloud(remote);
+    if(remote&&remote.ok&&remote.configured&&remote.site){
+      const keep={adminPassword:site.adminPassword,adminPhone:site.adminPhone,sms:site.sms,telegramChatId:site.telegramChatId};
+      site=mergeSite(Object.assign({},remote.site,keep));
+      saveJSON(K_SITE,site);
+    }
+    if(remote&&remote.ok&&remote.configured&&remote.bookings){
+      bookings=remote.bookings;
+      saveJSON(K_BK,bookings);
+    }
+    const pass=sessionStorage.getItem('mzPass');
+    const phone=sessionStorage.getItem('mzPhone');
+    if(isStaff()&&pass){
+      const full=await cloud('login',{phone,pass});
+      if(full&&full.ok){
+        if(full.site) site=mergeSite(full.site);
+        if(full.bookings) bookings=full.bookings;
+        if(full.clients) clients=full.clients;
+        saveJSON(K_SITE,site); saveJSON(K_BK,bookings); saveJSON(K_CLIENTS,clients);
+        if(!full.site) queueCloudSave({site:1,bookings:1,clients:1});
+      }
+    }
+  }catch(e){}
+  rebuildClientsFromBookings();
+  if(isStaff()&&bookingsAreFull(bookings)) checkReminders();
+  window.addEventListener('hashchange',route);
+  route();
+})();
 })();
 </script>
 </body>

@@ -1,0 +1,8 @@
+{
+  "name": "anastasia-nails",
+  "private": true,
+  "description": "Сайт записи к мастеру маникюра",
+  "dependencies": {
+    "@vercel/blob": "^0.27.1"
+  }
+}
