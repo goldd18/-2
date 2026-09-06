@@ -65,6 +65,22 @@ function blobToken() {
   return String(process.env.BLOB_READ_WRITE_TOKEN || '').trim();
 }
 
+function blobReady() {
+  return !!(blobToken() || process.env.BLOB_STORE_ID);
+}
+
+function blobOpts(extra) {
+  const opts = Object.assign({
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    contentType: 'application/json',
+    cacheControlMaxAge: 0
+  }, extra || {});
+  const token = blobToken();
+  if (token) opts.token = token;
+  return opts;
+}
+
 function looksHashed(p) {
   return /^[a-f0-9]{64}$/i.test(String(p || ''));
 }
@@ -119,13 +135,15 @@ async function streamToString(stream) {
 }
 
 async function loadStore() {
-  const token = blobToken();
-  if (!token) return globalThis.__mzStore || emptyStore();
+  if (!blobReady()) return globalThis.__mzStore || emptyStore();
   try {
     const blob = require('@vercel/blob');
+    const token = blobToken();
     if (typeof blob.get === 'function') {
       try {
-        const result = await blob.get(FILE, { access: 'private', token });
+        const getOpts = { access: 'private' };
+        if (token) getOpts.token = token;
+        const result = await blob.get(FILE, getOpts);
         if (result && result.stream) {
           const data = JSON.parse(await streamToString(result.stream));
           if (data && typeof data === 'object') {
@@ -135,7 +153,9 @@ async function loadStore() {
         }
       } catch (e) {}
     }
-    const listed = await blob.list({ prefix: FILE, token, limit: 20 });
+    const listOpts = { prefix: FILE, limit: 20 };
+    if (token) listOpts.token = token;
+    const listed = await blob.list(listOpts);
     const found = (listed.blobs || []).find(b => (b.pathname || '') === FILE)
       || (listed.blobs || []).find(b => String(b.pathname || '').includes('manikur-store'))
       || (listed.blobs || [])[0];
@@ -151,23 +171,15 @@ async function loadStore() {
 
 async function saveStore(store) {
   globalThis.__mzStore = store;
-  const token = blobToken();
-  if (!token) return { ok: false, error: 'no_store' };
+  if (!blobReady()) return { ok: false, error: 'no_store' };
   const body = JSON.stringify(store);
-  const opts = {
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    contentType: 'application/json',
-    token,
-    cacheControlMaxAge: 0
-  };
   try {
     const { put } = require('@vercel/blob');
     try {
-      await put(FILE, body, Object.assign({}, opts, { access: 'public' }));
+      await put(FILE, body, blobOpts({ access: 'private' }));
       return { ok: true };
     } catch (e1) {
-      await put(FILE, body, Object.assign({}, opts, { access: 'private' }));
+      await put(FILE, body, blobOpts({ access: 'public' }));
       return { ok: true };
     }
   } catch (e) {
@@ -211,7 +223,7 @@ function timeToMin(t) {
 module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return json(res, 204, { ok: true });
 
-  const configured = !!blobToken();
+  const configured = blobReady();
 
   if (req.method === 'GET') {
     const store = await loadStore();
