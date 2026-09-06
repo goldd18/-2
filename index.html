@@ -382,8 +382,12 @@ function cloud(action, extra){
     devPass:role==='dev'?DEV_PASS:''
   }, extra||{});
   return fetch('/api/store',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
-    .then(r=>r.json().catch(()=>({})))
-    .then(data=>{rememberCloud(data); return data;})
+    .then(async r=>{
+      const data=await r.json().catch(()=>({}));
+      if(!r.ok && !data.error) data.error=r.status===404?'missing_api':('http_'+r.status);
+      rememberCloud(data);
+      return data;
+    })
     .catch(()=>({ok:false,error:'offline'}));
 }
 function queueCloudSave(parts){
@@ -402,6 +406,7 @@ function queueCloudSave(parts){
     fillCloudBanner();
     if(data&&data.ok) return;
     if(data&&data.error==='no_store') showToast('Фото и правки не увидят другие: в Vercel создайте Storage → Blob и сделайте Redeploy');
+    else if(data&&data.error==='missing_api') showToast('На GitHub не попала папка api. Залейте её из «готовый релиз»');
     else if(data&&data.error==='auth') return;
     else showToast('Не удалось сохранить изменения на сайт');
   },700);
