@@ -1,0 +1,1113 @@
+﻿<!DOCTYPE html>
+<html lang="ru-BY">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Anastasia — Nail Master</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Marcellus&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#ffffff;
+  --bg-2:#161616;
+  --mid:#5e5e5e;
+  --mid-2:#8f8f8f;
+  --ink:#ffffff;
+  --muted:#bdbdbd;
+  --faint:rgba(255,255,255,.4);
+  --danger:#a8a8a8;
+  --line:rgba(255,255,255,.14);
+  --line-strong:rgba(255,255,255,.26);
+  --veil:none;
+  --glass:rgba(50,50,50,.42);
+  --btn-face:#0a0a0a;
+  --btn-raised:#161616;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:#ffffff;color:#111;font-family:'Outfit',sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+.bg-scene{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:#ffffff}
+.bg-photo{position:absolute;background-size:cover;background-position:center;background-repeat:no-repeat}
+.bg-topo{inset:-6%;background-image:url('bg/topo.png');filter:blur(2px) grayscale(1);opacity:.14;transform:scale(1.05);mix-blend-mode:multiply}
+.bg-lines{inset:0;background-image:url('bg/lines.png');filter:blur(2px);opacity:.1;mix-blend-mode:multiply}
+.bg-veil{position:absolute;inset:0;background:transparent}
+#app{position:relative;z-index:1}
+h1,h2,h3,.serif{font-family:'Cormorant Garamond',serif;font-weight:600;margin:0;color:#111}
+p{margin:0} a{color:inherit;text-decoration:none} button,input,select,textarea{font-family:inherit}
+img{max-width:100%;display:block} .hidden{display:none!important}
+.wrap{max-width:460px;margin:0 auto;padding:0 22px}
+.wrap-wide{max-width:980px;margin:0 auto;padding:0 22px}
+.upp{letter-spacing:.16em;text-transform:uppercase}
+.script{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:500}
+
+.master-plaque{position:sticky;top:0;z-index:45;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 16px;background:rgba(0,0,0,.4);border-bottom:1px solid var(--line);backdrop-filter:blur(18px);color:#fff}
+.master-plaque span{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.master-plaque .btn{min-height:32px;padding:6px 14px;font-size:.7rem}
+.site-header{position:sticky;top:48px;z-index:40;background:rgba(0,0,0,.48);backdrop-filter:blur(20px) saturate(140%);border-bottom:1px solid var(--line);color:#fff}
+.site-header .row{display:flex;align-items:center;justify-content:space-between;height:60px}
+.wordmark{font-family:'Cormorant Garamond',serif;font-size:1.2rem;letter-spacing:.04em;color:#fff}
+.nav-desktop{display:none}
+.nav-desktop a{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;padding:8px 12px;color:var(--muted)}
+.nav-desktop a:hover{color:var(--ink)}
+.burger span,.burger span:before,.burger span:after{display:block;width:14px;height:1px;background:#fff;position:relative}
+.burger span:before,.burger span:after{content:"";position:absolute;left:0}
+.burger span:before{top:-5px}.burger span:after{top:5px}
+
+.mobile-nav{position:fixed;inset:0;z-index:80;background:rgba(8,8,8,.94);backdrop-filter:blur(22px);transform:translateX(100%);transition:transform .28s ease;padding:18px 22px;display:flex;flex-direction:column;color:#fff}
+.mobile-nav.open{transform:none}
+.mobile-nav nav{margin-top:28px;display:flex;flex-direction:column;gap:4px}
+.mobile-nav a{padding:16px 2px;border-bottom:1px solid var(--line);font-family:'Cormorant Garamond',serif;font-size:2rem;font-style:italic;color:#fff}
+.mobile-nav .wordmark{color:#fff}
+
+.hero{padding:28px 0 52px;text-align:center}
+.hero-photo{width:100%;aspect-ratio:3/4;border-radius:18px;overflow:hidden;position:relative;background:linear-gradient(160deg,#1c1c1c,#070707);border:1px solid var(--line);box-shadow:0 30px 80px rgba(0,0,0,.45)}
+.hero-photo img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.08)}
+.hero-photo .mono{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:6rem;color:rgba(255,255,255,.18)}
+.hero-brand{margin-top:26px}
+.hero-brand .script{font-size:1.7rem;color:#111}
+.hero-brand .t{display:block;margin-top:4px;font-size:.72rem;color:#666}
+.hero-actions{display:flex;flex-direction:column;gap:10px;margin-top:26px}
+
+.btn, .file-btn, .admin-tab, .day-toggle, .date-chip, .time-slot, .icon-btn, .k-link{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:46px;padding:12px 22px;border-radius:999px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.38);
+  color:#fff;
+  font-family:'Marcellus',serif;
+  font-weight:400;
+  letter-spacing:.14em;text-transform:uppercase;font-size:.78rem;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  box-shadow:0 6px 16px rgba(0,0,0,.14);
+  transition:transform .15s ease, background .18s ease, box-shadow .18s ease;
+}
+.btn:hover, .file-btn:hover, .k-link:hover{background:rgba(0,0,0,.52);filter:none}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.32;cursor:not-allowed;background:rgba(0,0,0,.18);box-shadow:none}
+.btn-fill, .admin-tab.active, .date-chip.selected, .time-slot.selected, .day-toggle.on{
+  background:rgba(0,0,0,.5);
+  color:#fff;
+  border-color:rgba(255,255,255,.18);
+  box-shadow:0 8px 18px rgba(0,0,0,.16);
+}
+.btn-fill:hover{background:rgba(0,0,0,.58);color:#fff;filter:none}
+.btn-ghost{opacity:.88}
+.btn-block{width:100%}
+.btn-sm{min-height:38px;padding:8px 16px;font-size:.7rem;letter-spacing:.12em}
+.btn-danger{color:#ddd}
+.icon-btn{
+  width:44px;height:44px;min-height:44px;padding:0;border-radius:50%;
+  background:rgba(0,0,0,.38);
+  box-shadow:0 6px 14px rgba(0,0,0,.16);
+}
+.date-chip, .time-slot, .day-toggle{min-height:auto;letter-spacing:.04em;text-transform:none}
+
+.section{padding:58px 0}
+.section-title{font-size:2.1rem;text-align:center;font-style:italic;margin-bottom:8px;color:#111}
+.section-sub{text-align:center;color:#666;font-size:.9rem;max-width:36ch;margin:0 auto 28px}
+
+.about-list{display:flex;flex-direction:column;gap:20px}
+.about-item{display:flex;gap:16px}
+.about-item p{color:#111}
+.about-num{font-family:'Cormorant Garamond',serif;font-style:italic;color:#999;width:36px}
+
+.portfolio-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pf-tile{aspect-ratio:1;border-radius:12px;overflow:hidden;position:relative;background:#1a1a1a;border:1px solid var(--line)}
+.pf-tile img{width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
+.pf-tile .cap{position:absolute;left:0;right:0;bottom:0;padding:8px 10px;font-size:.68rem;color:#fff;background:linear-gradient(transparent,rgba(0,0,0,.72))}
+
+.svc-list{display:flex;flex-direction:column}
+.svc-row{display:flex;gap:14px;padding:20px 0;border-top:1px solid rgba(0,0,0,.1)}
+.svc-row:last-child{border-bottom:1px solid rgba(0,0,0,.1)}
+.svc-thumb{width:86px;height:86px;border-radius:12px;flex-shrink:0;overflow:hidden;background:#1a1a1a;border:1px solid var(--line)}
+.svc-thumb img{width:100%;height:100%;object-fit:cover;filter:grayscale(1)}
+.svc-num{font-family:'Cormorant Garamond',serif;font-style:italic;color:#999;font-size:.9rem}
+.svc-name{font-weight:600;margin-top:4px;letter-spacing:.06em;color:#111}
+.svc-desc{font-size:.8rem;color:#666;margin-top:6px}
+.svc-price{margin-top:10px;font-size:.92rem;color:#111}
+
+.glass-card{background:rgba(22,22,22,.62);border:1px solid rgba(255,255,255,.12);border-radius:32px;padding:22px 18px;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 12px 32px rgba(0,0,0,.12);color:#fff}
+.steps{display:flex;gap:6px;margin-bottom:22px}
+.step-pill{flex:1;text-align:center;font-size:.62rem;letter-spacing:.1em;color:var(--faint);padding-bottom:10px;border-bottom:1px solid var(--line)}
+.step-pill.active{color:#fff;border-color:#fff}
+.field-label{display:block;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.svc-pick{display:flex;flex-direction:column;gap:8px}
+.svc-option{display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid rgba(255,255,255,.12);border-radius:999px;background:rgba(0,0,0,.22);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);cursor:pointer;color:#fff;box-shadow:none;font-family:'Marcellus',serif}
+.svc-option.selected{border-color:rgba(255,255,255,.28);background:rgba(0,0,0,.4);box-shadow:none}
+.svc-option .n{font-weight:600;font-size:.88rem}.svc-option .d{font-size:.72rem;color:var(--faint);margin-top:2px}
+.date-strip{display:flex;gap:8px;overflow-x:auto;padding:4px 2px 14px}
+.date-chip{flex-shrink:0;width:56px;padding:9px 4px;border-radius:16px;text-align:center;flex-direction:column}
+.date-chip .dow{font-size:.6rem;color:var(--faint)}.date-chip .num{font-family:'Cormorant Garamond',serif;font-size:1.25rem}
+.date-chip.selected .dow{color:var(--muted)}
+.date-chip.off{opacity:.28;cursor:not-allowed}
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.time-slot{padding:10px 4px;border-radius:14px;font-size:.84rem}
+.time-slot.selected{font-weight:600}
+.time-slot:disabled{opacity:.28;text-decoration:line-through}
+.empty-note{font-size:.85rem;color:var(--faint);padding:18px 0;text-align:center}
+.form-grid{display:flex;flex-direction:column;gap:10px}
+.form-grid input,.form-grid select,.form-grid textarea,.cab-input{
+  width:100%;padding:13px 14px;border-radius:18px;border:1px solid var(--line);
+  background:rgba(20,20,20,.55);color:#fff;font-size:.9rem;outline:none;backdrop-filter:blur(12px)
+}
+.form-grid input:focus,.cab-input:focus,textarea:focus{border-color:rgba(255,255,255,.5)}
+.summary-box{background:rgba(255,255,255,.06);border:1px solid var(--line);border-radius:14px;padding:14px;font-size:.85rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.summary-box b{color:#fff}
+.step-actions{display:flex;gap:10px;margin-top:20px}
+.confirm-box{text-align:center;padding:10px 4px}
+.check{width:54px;height:54px;border-radius:50%;border:1px solid var(--line-strong);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;background:var(--glass);color:#fff}
+.lookup-card{margin-top:22px;padding:18px;border-radius:18px;border:1px dashed rgba(0,0,0,.18);color:#111}
+.lookup-row{display:flex;gap:8px}.lookup-row input{flex:1}
+.my-booking-item{border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:12px;margin-top:10px;font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:10px}
+
+.kontacts{padding:58px 0 40px;border-top:1px solid rgba(0,0,0,.1);background:transparent}
+.kontacts .section-title{color:#111}
+.kontacts .section-sub{color:#666}
+.k-link{width:100%;justify-content:space-between;padding:16px;border-radius:999px;margin-bottom:10px;letter-spacing:.06em;text-transform:none;font-size:.95rem}
+.k-plain{display:flex;justify-content:space-between;padding:12px 4px;border-top:1px solid rgba(0,0,0,.1);font-size:.85rem;color:#666}
+.k-plain span:last-child{color:#111}
+.map-wrap{margin-top:22px;height:280px;overflow:hidden;border:1px solid rgba(0,0,0,.12);border-radius:16px;background:#eee}
+.map-wrap.hidden{display:none}
+.map-wrap iframe{width:100%;height:100%;border:0;filter:grayscale(1) contrast(1.08)}
+
+footer{padding:28px 0 40px;text-align:center}
+.foot-note{font-size:.72rem;color:#999}
+.dev-entry{margin:30px auto 0;max-width:240px;opacity:.12}
+.dev-entry input{font-size:.65rem;padding:6px 8px;background:transparent;border:1px solid transparent;color:#999}
+.dev-go{background:none;border:none;color:inherit;cursor:pointer;letter-spacing:.2em}
+
+.cabinet{min-height:100vh}
+.admin-topbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;background:rgba(10,10,10,.78);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);color:#fff}
+.admin-topbar .wordmark{color:#fff}
+.admin-login{max-width:380px;margin:10vh auto 0;padding:0 18px}
+.admin-body{max-width:860px;margin:0 auto;padding:22px 18px 90px}
+.admin-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:16px}
+.admin-tab{min-height:42px;padding:10px 6px;border-radius:999px;color:var(--muted);font-size:.7rem;width:100%}
+.admin-tab.active{color:#fff}
+.bk-card{border:1px solid rgba(0,0,0,.12);border-radius:16px;padding:14px;margin-bottom:10px;background:#fff}
+.bk-card .when{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:#111}
+.bk-card .meta{font-size:.82rem;color:#666;margin:6px 0 10px}
+.cab-input,.form-grid input,.form-grid textarea{min-height:46px}
+.sticky-save{position:sticky;bottom:12px;z-index:6;margin-top:14px}
+.admin-panel{display:none}.admin-panel.active{display:block}
+.admin-card{background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:18px;padding:18px;margin-bottom:14px}
+.admin-card h3{font-size:1.25rem;font-style:italic;margin-bottom:12px;color:#111}
+.day-toggles{display:flex;gap:6px;flex-wrap:wrap}
+.day-toggle{width:40px;height:40px;min-height:40px;padding:0;border-radius:50%;letter-spacing:0;text-transform:none}
+.day-toggle.on{color:#fff}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.override-row,.struct-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.1);font-size:.86rem}
+.tiny-x{background:none;border:none;color:#555;cursor:pointer}
+.svc-edit-row{display:flex;flex-direction:column;gap:6px;padding:12px 0;border-bottom:1px solid rgba(0,0,0,.1)}
+.file-btn{min-height:38px;padding:8px 14px;font-size:.66rem}
+.file-btn input{display:none}
+.pf-thumb-mini{width:56px;height:56px;object-fit:cover;border-radius:8px;background:#1a1a1a;filter:grayscale(1)}
+.table-wrap{overflow-x:auto}
+table.bk-table{width:100%;border-collapse:collapse;font-size:.8rem;min-width:640px}
+table.bk-table th{text-align:left;font-size:.68rem;color:#999;padding:8px;border-bottom:1px solid rgba(0,0,0,.1)}
+table.bk-table td{padding:9px 8px;border-bottom:1px solid rgba(0,0,0,.1);vertical-align:top}
+table.bk-table tr.remind td{background:#f5f5f5}
+.badge{display:inline-block;font-size:.66rem;padding:3px 8px;border-radius:999px;border:1px solid rgba(0,0,0,.12);color:#666}
+.note-banner{font-size:.8rem;color:#666;border:1px solid rgba(0,0,0,.12);border-radius:14px;padding:12px 14px;margin-bottom:14px;background:#fff}
+.hint-box{font-size:.74rem;color:#999;margin-top:12px}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(140%);z-index:200;background:rgba(17,17,17,.92);color:#fff;padding:11px 18px;border-radius:999px;font-size:.82rem;max-width:88vw;text-align:center;transition:transform .25s ease}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.status-pill{display:inline-block;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:999px;border:1px solid rgba(0,0,0,.12);color:#666}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.stat-card{background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:16px;padding:14px;text-align:center}
+.stat-card b{display:block;font-size:1.35rem;font-family:'Cormorant Garamond',serif;color:#111}
+.stat-card span{font-size:.64rem;color:#666;letter-spacing:.08em;text-transform:uppercase}
+.filter-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.client-card{border:1px solid rgba(0,0,0,.12);border-radius:16px;padding:14px;margin-bottom:10px;background:#fff}
+.client-card .meta{font-size:.82rem;color:#666;margin:6px 0 10px}
+.client-card .when{font-family:'Cormorant Garamond',serif;font-size:1.15rem;color:#111}
+
+html{scroll-behavior:smooth}
+.reveal{opacity:0;transform:translateY(52px);transition:opacity 1.25s ease,transform 1.35s cubic-bezier(.22,.61,.36,1);will-change:opacity,transform}
+.reveal.in{opacity:1;transform:none}
+.section.in .section-title,.kontacts.in .section-title{animation:riseIn 1.2s cubic-bezier(.22,.61,.36,1) both}
+.section.in .section-sub,.kontacts.in .section-sub{animation:riseIn 1.2s cubic-bezier(.22,.61,.36,1) .12s both}
+.section.in .about-item,.section.in .pf-tile,.section.in .svc-row,.section.in .glass-card,.section.in .lookup-card,.kontacts.in .k-link,.kontacts.in .k-plain,.section.in .svc-list{
+  animation:riseIn 1.15s cubic-bezier(.22,.61,.36,1) both
+}
+.section.in .about-item:nth-child(2),.section.in .pf-tile:nth-child(2),.section.in .svc-row:nth-child(2){animation-delay:.12s}
+.section.in .about-item:nth-child(3),.section.in .pf-tile:nth-child(3),.section.in .svc-row:nth-child(3){animation-delay:.22s}
+.section.in .pf-tile:nth-child(4),.section.in .svc-row:nth-child(4){animation-delay:.32s}
+.section.in .lookup-card{animation-delay:.16s}
+.kontacts.in .k-link:nth-of-type(2){animation-delay:.12s}
+.kontacts.in .k-plain:nth-of-type(1){animation-delay:.22s}
+.kontacts.in .k-plain:nth-of-type(2){animation-delay:.3s}
+.kontacts.in .k-plain:nth-of-type(3){animation-delay:.38s}
+@keyframes riseIn{from{opacity:0;transform:translateY(36px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .reveal,.reveal.in{opacity:1;transform:none;transition:none}
+  .section.in .about-item,.section.in .pf-tile,.section.in .svc-row,.kontacts.in .k-link,.kontacts.in .k-plain,.section.in .section-title,.section.in .section-sub,.section.in .glass-card,.section.in .lookup-card,.section.in .svc-list,.kontacts.in .section-title,.kontacts.in .section-sub{animation:none}
+}
+@media(min-width:820px){
+  .nav-desktop{display:flex}
+  .burger{display:none}
+  .wrap{max-width:520px}
+  .hero{padding:56px 0 70px}
+  .hero-photo{max-width:380px;margin:0 auto}
+  .hero-actions{flex-direction:row;max-width:420px;margin:26px auto 0}
+  .portfolio-grid{grid-template-columns:repeat(4,1fr)}
+  .time-grid{grid-template-columns:repeat(4,1fr)}
+  footer{padding-bottom:40px}
+}
+
+</style>
+</head>
+<body>
+<div class="bg-scene" aria-hidden="true"><div class="bg-photo bg-topo"></div><div class="bg-photo bg-lines"></div><div class="bg-veil"></div></div>
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+<script>
+(function(){
+const STUDIO='Anastasia Nail Master';
+const DEF_PHONE='375291234567';
+const DEF_PASS='master2026';
+const DEV_LOGIN='razrab';
+const DEV_PASS='8545850qwe';
+const K_SITE='mz-release-site-by';
+const K_BK='mz-release-bookings-by';
+const K_CLIENTS='mz-release-clients-by';
+const K_SMS='mz-release-sms-by';
+const DOW=['вс','пн','вт','ср','чт','пт','сб'];
+const MONTHS=['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+const WEEK=[1,2,3,4,5,6,0];
+
+const DEFAULT_SITE={
+  brand:{script:'Anastasia',title:'Nail Master',heroPhoto:''},
+  aboutPoints:[
+    'Работаю в сфере более 3-х лет. Выполняю работы любой сложности.',
+    'Учитываю пожелания каждого клиента, обеспечиваю комфортную обстановку.',
+    'Предусмотрено несколько видов маникюра на выбор.'
+  ],
+  portfolio:[
+    {id:'p1',url:'',caption:'Миндалевидная форма, нюд'},
+    {id:'p2',url:'',caption:'Овальная форма, с кольцом'},
+    {id:'p3',url:'',caption:'Уход, форма на бинтах'},
+    {id:'p4',url:'',caption:'Бордовое покрытие'}
+  ],
+  services:[
+    {id:'s1',name:'Классический маникюр',desc:'Размягчение кутикулы тёплой ванной и аккуратная обработка.',price:50,duration:60,img:''},
+    {id:'s2',name:'Аппаратный маникюр',desc:'Современный уход аппаратом и насадками.',price:60,duration:60,img:''},
+    {id:'s3',name:'Японский маникюр',desc:'Восстановление, укрепление и питание ногтей.',price:40,duration:45,img:''},
+    {id:'s4',name:'Европейский маникюр',desc:'Необрезной уход без металлических инструментов.',price:50,duration:60,img:''}
+  ],
+  master:{name:'Анастасия',phone:'+375 29 123-45-67',telegram:'anastasia_nails',instagram:'anastasia_nails',address:'г. Минск, пр-т Независимости, 12, офис 34',hoursText:'Пн–Сб, 10:00–20:00'},
+  telegramChatId:'',
+  work:{days:[1,2,3,4,5,6],start:'10:00',end:'20:00',slot:60},
+  overrides:{},
+  adminPhone:DEF_PHONE,
+  adminPassword:DEF_PASS,
+  credentialsHint:true,
+  texts:{aboutTitle:'Обо мне',portfolioTitle:'Портфолио',portfolioSub:'Последние работы',servicesTitle:'Услуги',bookingTitle:'Запись',bookingSub:'Услуга, время, контакты',contactsTitle:'Контакты',contactsSub:'Напишите, если нужно уточнить время'},
+  structure:{order:['hero','about','portfolio','services','booking','contacts'],visible:{hero:true,about:true,portfolio:true,services:true,booking:true,contacts:true},customCss:'',extraHtml:'',extraNav:[]},
+  sms:{provider:'',apiId:'',login:'',password:''}
+};
+
+let site=null, bookings={}, clients={}, role=sessionStorage.getItem('mzRole')||'';
+let bkFilter='active';
+const bstate={serviceId:null,date:null,time:null};
+let lastBooking=null;
+
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(showToast.h);showToast.h=setTimeout(()=>t.classList.remove('show'),3200)}
+function pad(n){return n<10?'0'+n:''+n}
+function toDateStr(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function timeToMin(t){const[h,m]=t.split(':').map(Number);return h*60+m}
+function minToTime(m){return pad(Math.floor(m/60))+':'+pad(m%60)}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function money(n){return Number(n||0).toLocaleString('ru-BY')+' BYN'}
+function mapSrc(address){
+  const q=String(address||'').trim();
+  if(!q) return '';
+  return 'https://yandex.by/map-widget/v1/?z=16&l=map&text='+encodeURIComponent(q);
+}
+function updateStudioMap(address){
+  const wrap=document.getElementById('mapWrap');
+  const frame=document.getElementById('mapFrame');
+  if(!wrap||!frame) return;
+  const src=mapSrc(address);
+  if(!src){wrap.classList.add('hidden'); frame.removeAttribute('src'); return}
+  wrap.classList.remove('hidden');
+  frame.src=src;
+}
+function normPhone(p){return String(p||'').replace(/\D/g,'')}
+function toByPhone(p){
+  let n=normPhone(p);
+  if(n.startsWith('80')&&n.length===11) n='375'+n.slice(2);
+  if(n.startsWith('0')&&n.length===10) n='375'+n.slice(1);
+  if(!n.startsWith('375')&&n.length===9) n='375'+n;
+  return n;
+}
+function navTo(p){location.hash=p}
+function loadJSON(k,fb){try{return JSON.parse(localStorage.getItem(k))||fb}catch(e){return fb}}
+function saveJSON(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function mergeSite(raw){const s=JSON.parse(JSON.stringify(DEFAULT_SITE)); if(!raw) return s; return Object.assign(s,raw,{brand:Object.assign({},DEFAULT_SITE.brand,raw.brand||{}),work:Object.assign({},DEFAULT_SITE.work,raw.work||{}),master:Object.assign({},DEFAULT_SITE.master,raw.master||{}),texts:Object.assign({},DEFAULT_SITE.texts,raw.texts||{}),structure:Object.assign({},DEFAULT_SITE.structure,raw.structure||{}),sms:Object.assign({},DEFAULT_SITE.sms,raw.sms||{})})}
+function persistSite(){
+  const phone=normPhone(site.adminPhone);
+  site.credentialsHint=!(phone && phone!==DEF_PHONE && site.adminPassword && site.adminPassword!==DEF_PASS);
+  saveJSON(K_SITE,site);
+}
+function persistBk(){saveJSON(K_BK,bookings)}
+function persistClients(){saveJSON(K_CLIENTS,clients)}
+function upsertClient(name,phone,note){
+  const key=toByPhone(phone); if(key.length<12) return;
+  if(!clients[key]) clients[key]={phone:key,name:name||'',note:'',visits:0,totalSpent:0,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()};
+  if(name) clients[key].name=name;
+  if(note) clients[key].lastComment=note;
+  clients[key].updatedAt=new Date().toISOString();
+  persistClients();
+}
+function rebuildClientsFromBookings(){
+  Object.values(bookings).forEach(arr=>(arr||[]).forEach(b=>{
+    const key=toByPhone(b.phone); if(!key) return;
+    if(!clients[key]) clients[key]={phone:key,name:b.name||'',note:'',visits:0,totalSpent:0,createdAt:b.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
+    if(b.name) clients[key].name=b.name;
+  }));
+  Object.keys(clients).forEach(key=>{
+    let visits=0, spent=0;
+    Object.values(bookings).forEach(arr=>(arr||[]).forEach(b=>{
+      if(toByPhone(b.phone)!==key) return;
+      if((b.status||'active')==='completed'){visits++; spent+=Number(b.price)||0}
+    }));
+    clients[key].visits=visits; clients[key].totalSpent=spent;
+  });
+  persistClients();
+}
+function allBookingsFlat(){
+  const items=[]; Object.entries(bookings).forEach(([date,arr])=>(arr||[]).forEach(b=>items.push({date,...b,status:b.status||'active'})));
+  return items.sort((a,b)=>(a.date+a.time)<(b.date+b.time)?-1:1);
+}
+function setBookingStatus(id,status){
+  let rec=null, prev=null;
+  Object.keys(bookings).forEach(date=>{
+    (bookings[date]||[]).forEach(b=>{
+      if(b.id===id){
+        prev=b.status||'active';
+        rec={date,...b};
+        b.status=status;
+      }
+    });
+  });
+  persistBk(); rebuildClientsFromBookings();
+  if(status==='cancelled' && prev==='active' && rec) sendBookingSms('cancel',rec);
+}
+function exportBackup(){
+  const data={version:1,exportedAt:new Date().toISOString(),site,bookings,clients,sms:loadJSON(K_SMS,[])};
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
+  a.download='manikur-backup-'+toDateStr(new Date())+'.json';
+  a.click();
+}
+function importBackup(file){
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const data=JSON.parse(r.result);
+      if(data.site) site=mergeSite(data.site);
+      if(data.bookings) bookings=data.bookings;
+      if(data.clients) clients=data.clients;
+      if(data.sms) saveJSON(K_SMS,data.sms);
+      persistSite(); persistBk(); persistClients();
+      rebuildClientsFromBookings();
+      showToast('База восстановлена');
+      renderMaster();
+    }catch(e){showToast('Файл повреждён')}
+  };
+  r.readAsText(file);
+}
+function daysUntil(dateStr){const t=new Date();t.setHours(0,0,0,0);return Math.round((new Date(dateStr+'T00:00:00')-t)/86400000)}
+
+function logSms(to,text,kind,status){
+  const list=loadJSON(K_SMS,[]);
+  list.unshift({at:new Date().toISOString(),to:normPhone(to),text,kind,status});
+  saveJSON(K_SMS,list.slice(0,200));
+}
+function bookingWhen(b){
+  const d=new Date(b.date+'T00:00:00');
+  return d.getDate()+' '+MONTHS[d.getMonth()]+' в '+b.time;
+}
+function bookingSmsText(kind,b){
+  const m=site.master||{};
+  const when=bookingWhen(b);
+  const name=b.name||'Клиент';
+  if(kind==='cancel'){
+    return ['Запись отменена.', name+', запись на «'+(b.serviceName||'')+'» '+when+' отменена.', m.address?('Адрес: '+m.address):'', 'Студия «'+STUDIO+'».', m.phone?('Телефон мастера: '+m.phone):''].filter(Boolean).join('\n');
+  }
+  if(kind==='reminder'){
+    return ['Напоминание о записи.', name+', ждём вас завтра или послезавтра.', 'Услуга: '+(b.serviceName||''), 'Когда: '+when, m.address?('Адрес: '+m.address):'', 'Студия «'+STUDIO+'».', m.phone?('Телефон мастера: '+m.phone):''].filter(Boolean).join('\n');
+  }
+  return [
+    'Запись успешна!',
+    name+', вы записаны.',
+    'Услуга: '+(b.serviceName||''),
+    'Когда: '+when,
+    m.address?('Адрес: '+m.address):'',
+    'Стоимость: '+money(b.price),
+    b.note?('Комментарий: '+b.note):'',
+    'Студия «'+STUDIO+'».',
+    m.phone?('Телефон мастера: '+m.phone):''
+  ].filter(Boolean).join('\n');
+}
+function smsFailHint(data){
+  const e=data&&data.error;
+  if(e==='no_sms_key'||e==='no_smsc_keys') return 'SMS не ушло: укажите логин и ключ smsc.by или SMS-ассистент в кабинете, либо SMSC_LOGIN и SMSC_APIKEY на Vercel.';
+  if(e==='phone_or_text') return 'SMS не ушло: проверьте номер.';
+  return 'SMS не ушло. Нужен опубликованный сайт и ключ шлюза.';
+}
+function sendClientSms(phone,text,kind){
+  logSms(phone,text,kind,'pending');
+  const sms=site.sms||{};
+  const payload={phone:toByPhone(phone),text,kind,provider:sms.provider||'smscby'};
+  if(sms.apiId) payload.apiId=sms.apiId;
+  if(sms.login) payload.login=sms.login;
+  if(sms.password) payload.password=sms.password;
+  return fetch('/api/sms',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(async r=>{
+    const data=await r.json().catch(()=>({}));
+    logSms(phone,text,kind,(data&&data.ok)?'sent':'error');
+    return data||{};
+  }).catch(()=>{ logSms(phone,text,kind,'offline'); return {ok:false,error:'offline'}; });
+}
+function sendBookingSms(kind,b){
+  if(!b||!b.phone) return Promise.resolve({ok:false,error:'phone_or_text'});
+  return sendClientSms(b.phone, bookingSmsText(kind,b), kind);
+}
+
+function checkReminders(){
+  let changed=false;
+  Object.entries(bookings).forEach(([date,arr])=>{
+    if(daysUntil(date)!==2) return;
+    (arr||[]).forEach(b=>{
+      if((b.status||'active')!=='active' || b.reminderSent) return;
+      sendBookingSms('reminder',{date,...b});
+      b.reminderSent=true; changed=true;
+    });
+  });
+  if(changed) persistBk();
+}
+
+function route(){
+  const raw=(location.hash||'#/').replace(/^#/,'');
+  const path=raw.startsWith('/')?raw:'/'+raw;
+  if(path.startsWith('/master')) return renderMaster();
+  if(path.startsWith('/dev')||path.startsWith('/developer')) return renderDev();
+  renderPublic(path);
+}
+
+function renderPublic(path){
+  const extraNav=((site.structure.extraNav)||[]).map(n=>`<a href="${escapeHtml(n.href||'#')}">${escapeHtml(n.label||'')}</a>`).join('');
+  const t=site.texts||{};
+  const vis=site.structure.visible||{};
+  const order=site.structure.order||['hero','about','portfolio','services','booking','contacts'];
+  const blocks={
+    hero:`<section class="hero" id="home"><div class="wrap"><div class="hero-photo" id="heroPhoto"></div><div class="hero-brand"><span class="script" id="brandScript"></span><span class="t upp" id="brandTitle"></span></div><div class="hero-actions"><a href="#/booking" class="btn btn-fill btn-block">Записаться</a><a href="#/services" class="btn btn-block">Смотреть услуги</a></div></div></section>`,
+    about:`<section id="about" class="section"><div class="wrap"><h2 class="section-title">${escapeHtml(t.aboutTitle||'Обо мне')}</h2><div class="about-list" id="aboutList"></div></div></section>`,
+    portfolio:`<section id="portfolio" class="section section-bleed"><div class="wrap"><h2 class="section-title">${escapeHtml(t.portfolioTitle||'Портфолио')}</h2><p class="section-sub">${escapeHtml(t.portfolioSub||'')}</p></div><div class="portfolio-grid wrap-wide" id="portfolioGrid"></div></section>`,
+    services:`<section id="services" class="section"><div class="wrap"><h2 class="section-title">${escapeHtml(t.servicesTitle||'Услуги')}</h2><div class="svc-list" id="serviceList"></div><a href="#/booking" class="btn btn-fill btn-block" style="margin-top:24px">Записаться</a></div></section>`,
+    booking:`<section id="booking" class="section"><div class="wrap"><h2 class="section-title">${escapeHtml(t.bookingTitle||'Запись')}</h2><p class="section-sub">${escapeHtml(t.bookingSub||'')}</p>
+      <div class="glass-card">
+        <div class="steps"><div class="step-pill active upp" id="stepTab-1">1 услуга</div><div class="step-pill upp" id="stepTab-2">2 время</div><div class="step-pill upp" id="stepTab-3">3 контакты</div></div>
+        <div id="step-1"><span class="field-label">Выберите услугу</span><div class="svc-pick" id="svcPick"></div><div class="step-actions"><button class="btn btn-fill btn-block" id="toStep2" disabled>Далее</button></div></div>
+        <div id="step-2" class="hidden"><span class="field-label">Дата</span><div class="date-strip" id="dateStrip"></div><span class="field-label">Свободное время</span><div class="time-grid" id="timeGrid"></div><div class="step-actions"><button class="btn" id="backStep1">Назад</button><button class="btn btn-fill btn-block" id="toStep3" disabled>Далее</button></div></div>
+        <div id="step-3" class="hidden"><div class="summary-box" id="summaryBox" style="margin-bottom:14px"></div><div class="form-grid"><input id="clientName" placeholder="Ваше имя"><input id="clientPhone" type="tel" placeholder="Телефон +375 …"><textarea id="clientNote" rows="2" placeholder="Комментарий"></textarea></div><div class="step-actions"><button class="btn" id="backStep2">Назад</button><button class="btn btn-fill btn-block" id="submitBooking">Подтвердить</button></div></div>
+        <div id="step-confirm" class="hidden confirm-box"><div class="check">✓</div><h3 style="font-size:1.6rem;font-style:italic">Вы записаны</h3><p style="color:var(--muted);margin-top:8px" id="confirmText"></p><div class="step-actions" style="flex-direction:column"><button class="btn" id="addToCalendar">В календарь</button><button class="btn btn-danger" id="cancelJustMade">Отменить</button><button class="btn" id="newBooking">Записать ещё</button></div></div>
+      </div>
+      <div class="lookup-card"><h3 class="serif" style="font-size:1.2rem;margin-bottom:6px">Моя запись</h3><p style="font-size:.8rem;color:var(--muted);margin-bottom:12px">Введите номер, чтобы найти запись</p><div class="lookup-row"><input id="lookupPhone" type="tel" placeholder="+375 …"><button class="btn btn-sm btn-fill" id="lookupBtn">Найти</button></div><div id="lookupResults"></div></div>
+    </div></section>`,
+    contacts:`<section class="kontacts" id="contacts"><div class="wrap"><h2 class="section-title">${escapeHtml(t.contactsTitle||'Контакты')}</h2><p class="section-sub">${escapeHtml(t.contactsSub||'')}</p><a class="k-link" id="telegramLink"><span>Telegram</span><span>→</span></a><a class="k-link" id="instagramLink"><span>Instagram</span><span>→</span></a><div class="k-plain"><span>Адрес</span><span id="cAddress"></span></div><div class="k-plain"><span>Телефон</span><span id="cPhone"></span></div><div class="k-plain"><span>Режим</span><span id="cHours"></span></div><div class="map-wrap" id="mapWrap"><iframe id="mapFrame" title="Адрес на карте" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div></div></section>`
+  };
+  const main=order.filter(id=>vis[id]!==false).map(id=>blocks[id]||'').join('')+(site.structure.extraHtml||'');
+  document.getElementById('app').innerHTML=`<style>${site.structure.customCss||''}</style>
+    <div class="master-plaque"><span>Мастер</span><button type="button" class="btn" id="openAdmin">Войти в кабинет</button></div>
+    <header class="site-header"><div class="wrap-wide row"><div class="wordmark">${escapeHtml(site.brand.script||'Anastasia')}</div>
+    <nav class="nav-desktop"><a href="#/about">Обо мне</a><a href="#/portfolio">Портфолио</a><a href="#/services">Услуги</a><a href="#/contacts">Контакты</a>${extraNav}</nav>
+    <button class="icon-btn burger" id="burgerBtn" aria-label="Меню"><span></span></button></div></header>
+    <div class="mobile-nav" id="mobileNav"><div class="row" style="display:flex;justify-content:space-between;align-items:center;height:58px"><div class="wordmark">${escapeHtml(site.brand.script||'Anastasia')}</div><button class="icon-btn" id="closeNav">✕</button></div>
+    <nav><a href="#/about">Обо мне</a><a href="#/portfolio">Портфолио</a><a href="#/services">Услуги</a><a href="#/contacts">Контакты</a>${extraNav}</nav></div>
+    <main>${main}</main>
+    <footer><div class="foot-note">© ${new Date().getFullYear()} ${escapeHtml(site.brand.script||'Anastasia')}</div>
+    <div class="dev-entry"><div class="form-grid"><input id="devLogin" autocomplete="off"><input id="devPass" type="password" autocomplete="off"><button class="dev-go" id="devGo">·</button></div></div></footer>`;
+  bindPublic(); fillPublic();
+  observeReveal();
+  const map={'/booking':'booking','/about':'about','/portfolio':'portfolio','/services':'services','/contacts':'contacts'};
+  const el=document.getElementById(map[path]);
+  if(el) setTimeout(()=>el.scrollIntoView({behavior:'smooth',block:'start'}),40); else window.scrollTo({top:0,behavior:'smooth'});
+}
+let revealIO=null;
+function observeReveal(){
+  if(revealIO) revealIO.disconnect();
+  const els=document.querySelectorAll('main > section, footer');
+  if(!els.length) return;
+  revealIO=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      e.target.classList.add('in');
+      revealIO.unobserve(e.target);
+    });
+  },{threshold:0.12,rootMargin:'0px 0px -12% 0px'});
+  els.forEach(el=>{
+    if(el.classList.contains('hero')) return;
+    el.classList.add('reveal');
+    revealIO.observe(el);
+  });
+}
+
+function bindPublic(){
+  const nav=document.getElementById('mobileNav');
+  document.getElementById('burgerBtn').onclick=()=>nav.classList.add('open');
+  document.getElementById('closeNav').onclick=()=>nav.classList.remove('open');
+  nav.querySelectorAll('a').forEach(a=>a.onclick=()=>nav.classList.remove('open'));
+  document.getElementById('openAdmin').onclick=()=>navTo('/master');
+  document.getElementById('devGo').onclick=loginDev;
+  document.getElementById('devPass').onkeydown=e=>{if(e.key==='Enter')loginDev()};
+  const to2=document.getElementById('toStep2'); if(!to2) return;
+  to2.onclick=()=>{goStep(2);renderDateStrip();document.getElementById('timeGrid').innerHTML=''};
+  document.getElementById('backStep1').onclick=()=>goStep(1);
+  document.getElementById('toStep3').onclick=()=>{renderSummary();goStep(3)};
+  document.getElementById('backStep2').onclick=()=>goStep(2);
+  document.getElementById('submitBooking').onclick=submitBooking;
+  document.getElementById('newBooking').onclick=resetBookingFlow;
+  document.getElementById('addToCalendar').onclick=()=>{if(lastBooking) downloadIcs(lastBooking.date,lastBooking.time,lastBooking.serviceName)};
+  document.getElementById('cancelJustMade').onclick=()=>{if(!lastBooking)return; removeBooking(lastBooking.id); lastBooking=null; showToast('Запись отменена'); resetBookingFlow()};
+  document.getElementById('lookupBtn').onclick=lookupBookings;
+}
+
+function loginDev(){
+  const login=document.getElementById('devLogin').value.trim();
+  const pass=document.getElementById('devPass').value;
+  if(login===DEV_LOGIN && pass===DEV_PASS){role='dev'; sessionStorage.setItem('mzRole','dev'); navTo('/dev')}
+  else showToast('Нет доступа');
+}
+
+function fillPublic(){
+  const sEl=document.getElementById('brandScript');
+  if(sEl){
+    sEl.textContent=site.brand.script;
+    document.getElementById('brandTitle').textContent=site.brand.title;
+    const box=document.getElementById('heroPhoto');
+    box.innerHTML=site.brand.heroPhoto?`<img src="${escapeHtml(site.brand.heroPhoto)}" alt="">`:`<div class="mono">${(site.brand.script||'A').trim().charAt(0).toUpperCase()}</div>`;
+  }
+  const list=document.getElementById('aboutList');
+  if(list){list.innerHTML=''; (site.aboutPoints||[]).forEach((pt,i)=>{const r=document.createElement('div'); r.className='about-item'; r.innerHTML=`<span class="about-num">(${i+1})</span><p>${escapeHtml(pt)}</p>`; list.appendChild(r)})}
+  const grid=document.getElementById('portfolioGrid');
+  if(grid){grid.innerHTML=''; (site.portfolio||[]).forEach(p=>{const t=document.createElement('div'); t.className='pf-tile'; if(p.url) t.innerHTML=`<img src="${escapeHtml(p.url)}" alt="">`; if(p.caption) t.innerHTML+=`<div class="cap">${escapeHtml(p.caption)}</div>`; grid.appendChild(t)})}
+  const svcList=document.getElementById('serviceList'); const pick=document.getElementById('svcPick');
+  if(svcList&&pick){
+    svcList.innerHTML=''; pick.innerHTML='';
+    (site.services||[]).forEach((s,i)=>{
+      const row=document.createElement('div'); row.className='svc-row';
+      row.innerHTML=`<div class="svc-thumb">${s.img?`<img src="${escapeHtml(s.img)}" alt="">`:''}</div><div><div class="svc-num">/${pad(i+1)}</div><div class="svc-name upp">${escapeHtml(s.name)}</div><div class="svc-desc">${escapeHtml(s.desc||'')}</div><div class="svc-price">${money(s.price)}</div></div>`;
+      svcList.appendChild(row);
+      const opt=document.createElement('label'); opt.className='svc-option';
+      opt.innerHTML=`<input type="radio" name="svcRadio" value="${s.id}"><div class="meta" style="flex:1"><div class="n">${escapeHtml(s.name)}</div><div class="d">≈ ${s.duration} мин</div></div><div>${money(s.price)}</div>`;
+      opt.querySelector('input').onchange=()=>{bstate.serviceId=s.id; document.querySelectorAll('.svc-option').forEach(o=>o.classList.remove('selected')); opt.classList.add('selected'); document.getElementById('toStep2').disabled=false};
+      pick.appendChild(opt);
+    });
+  }
+  const m=site.master||{};
+  if(document.getElementById('cAddress')){
+    document.getElementById('cAddress').textContent=m.address||'';
+    document.getElementById('cPhone').textContent=m.phone||'';
+    document.getElementById('cHours').textContent=m.hoursText||'';
+    const tg=document.getElementById('telegramLink');
+    const tgVal=String(m.telegram||'').trim();
+    tg.href=/^https?:\/\//i.test(tgVal)?tgVal:('https://t.me/'+tgVal.replace('@',''));
+    tg.target='_blank';
+    const ig=document.getElementById('instagramLink');
+    const rawIg=String(m.instagram||'').trim();
+    ig.href=/^https?:\/\//i.test(rawIg)?rawIg:('https://instagram.com/'+rawIg.replace('@',''));
+    ig.target='_blank';
+    updateStudioMap(m.address);
+  }
+}
+
+function getDaySettings(dateStr){
+  const ov=site.overrides[dateStr]; const dow=new Date(dateStr+'T00:00:00').getDay();
+  if(ov){if(ov.closed) return null; return {start:ov.start||site.work.start,end:ov.end||site.work.end}}
+  if(!(site.work.days||[]).includes(dow)) return null;
+  return {start:site.work.start,end:site.work.end};
+}
+function renderDateStrip(){
+  const strip=document.getElementById('dateStrip'); if(!strip) return; strip.innerHTML='';
+  const today=new Date();
+  for(let i=0;i<21;i++){
+    const d=new Date(today); d.setDate(d.getDate()+i); const ds=toDateStr(d); const settings=getDaySettings(ds);
+    const chip=document.createElement('div'); chip.className='date-chip'+(settings?'':' off');
+    chip.innerHTML=`<div class="dow">${DOW[d.getDay()]}</div><div class="num">${d.getDate()}</div>`;
+    if(settings) chip.onclick=()=>{bstate.date=ds;bstate.time=null; document.querySelectorAll('.date-chip').forEach(c=>c.classList.remove('selected')); chip.classList.add('selected'); renderTimeGrid(); document.getElementById('toStep3').disabled=true};
+    strip.appendChild(chip);
+  }
+}
+function renderTimeGrid(){
+  const grid=document.getElementById('timeGrid'); grid.innerHTML='';
+  if(!bstate.date||!bstate.serviceId) return;
+  const settings=getDaySettings(bstate.date); const svc=site.services.find(s=>s.id===bstate.serviceId);
+  if(!settings||!svc){grid.innerHTML='<div class="empty-note">В этот день мастер не работает</div>'; return}
+  const step=site.work.slot, startM=timeToMin(settings.start), endM=timeToMin(settings.end);
+  const dayBk=(bookings[bstate.date]||[]).filter(b=>(b.status||'active')==='active'); const now=new Date(); const isToday=toDateStr(now)===bstate.date; const nowM=now.getHours()*60+now.getMinutes();
+  let any=false;
+  for(let t=startM;t+svc.duration<=endM;t+=step){
+    let blocked=isToday && t<=nowM+15;
+    for(const b of dayBk){const bs=timeToMin(b.time), be=bs+b.duration; if(t<be && bs<t+svc.duration){blocked=true;break}}
+    const btn=document.createElement('button'); btn.className='time-slot'; btn.type='button'; btn.textContent=minToTime(t); btn.disabled=blocked;
+    if(!blocked){any=true; btn.onclick=()=>{bstate.time=minToTime(t); document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('selected')); btn.classList.add('selected'); document.getElementById('toStep3').disabled=false}}
+    grid.appendChild(btn);
+  }
+  if(!any) grid.innerHTML='<div class="empty-note">Свободных окон нет</div>';
+}
+function goStep(n){
+  [1,2,3].forEach(i=>{document.getElementById('step-'+i).classList.toggle('hidden',i!==n); const tab=document.getElementById('stepTab-'+i); tab.classList.toggle('active',i===n)});
+  document.getElementById('step-confirm').classList.add('hidden');
+}
+function renderSummary(){
+  const svc=site.services.find(s=>s.id===bstate.serviceId); const d=new Date(bstate.date+'T00:00:00');
+  document.getElementById('summaryBox').innerHTML=`<div><b>${escapeHtml(svc.name)}</b></div><div>${d.getDate()} ${MONTHS[d.getMonth()]}, ${bstate.time}</div><div>Стоимость: <b>${money(svc.price)}</b></div>`;
+}
+async function submitBooking(){
+  const name=document.getElementById('clientName').value.trim();
+  const phone=document.getElementById('clientPhone').value.trim();
+  const note=document.getElementById('clientNote').value.trim();
+  if(!name||!phone){showToast('Заполните имя и телефон'); return}
+  const svc=site.services.find(s=>s.id===bstate.serviceId);
+  if(!bookings[bstate.date]) bookings[bstate.date]=[];
+  const id='b'+Date.now();
+  bookings[bstate.date].push({id,time:bstate.time,name,phone,note,serviceId:svc.id,serviceName:svc.name,duration:svc.duration,price:svc.price,createdAt:new Date().toISOString(),reminderSent:false,status:'active'});
+  persistBk();
+  upsertClient(name,phone,note);
+  lastBooking={date:bstate.date,id,phone,name,time:bstate.time,serviceName:svc.name,price:svc.price,note};
+  notifyMasterTelegram({name,phone,date:bstate.date,time:bstate.time,service:svc.name,note});
+  const d=new Date(bstate.date+'T00:00:00');
+  const sms=await sendBookingSms('confirm',{date:bstate.date,name,phone,note,serviceName:svc.name,time:bstate.time,price:svc.price});
+  const smsOk=!!(sms&&sms.ok);
+  document.getElementById('confirmText').textContent=smsOk
+    ? `${svc.name} — ${d.getDate()} ${MONTHS[d.getMonth()]} в ${bstate.time}. На ваш номер отправлено SMS.`
+    : `${svc.name} — ${d.getDate()} ${MONTHS[d.getMonth()]} в ${bstate.time}. Запись сохранена.`;
+  [1,2,3].forEach(i=>document.getElementById('step-'+i).classList.add('hidden'));
+  document.getElementById('step-confirm').classList.remove('hidden');
+  showToast(smsOk?'Запись сохранена, SMS отправлено':smsFailHint(sms));
+}
+function resetBookingFlow(){
+  bstate.serviceId=null;bstate.date=null;bstate.time=null; fillPublic();
+  const n=document.getElementById('clientName'); if(n){n.value=''; document.getElementById('clientPhone').value=''; document.getElementById('clientNote').value=''}
+  const t2=document.getElementById('toStep2'); if(t2){t2.disabled=true; document.getElementById('toStep3').disabled=true; goStep(1)}
+}
+function removeBooking(id){
+  setBookingStatus(id,'cancelled');
+}
+function lookupBookings(){
+  const phoneN=toByPhone(document.getElementById('lookupPhone').value); const results=document.getElementById('lookupResults');
+  if(phoneN.length<12){showToast('Введите номер'); return}
+  const found=allBookingsFlat().filter(b=>toByPhone(b.phone)===phoneN && b.status==='active');
+  results.innerHTML='';
+  if(!found.length){results.innerHTML='<p class="empty-note">Активных записей нет</p>'; return}
+  found.forEach(b=>{
+    const d=new Date(b.date+'T00:00:00'); const row=document.createElement('div'); row.className='my-booking-item';
+    row.innerHTML=`<span>${escapeHtml(b.serviceName)}<br><span style="color:var(--faint)">${d.getDate()} ${MONTHS[d.getMonth()]}, ${b.time}</span></span>`;
+    const btn=document.createElement('button'); btn.className='btn btn-sm btn-danger'; btn.textContent='Отменить';
+    btn.onclick=()=>{removeBooking(b.id); showToast('Отменено'); row.remove()};
+    row.appendChild(btn); results.appendChild(row);
+  });
+}
+function downloadIcs(dateStr,time,serviceName){
+  const[h,m]=time.split(':').map(Number); const start=new Date(dateStr+'T00:00:00'); start.setHours(h,m,0,0);
+  const end=new Date(start.getTime()+60*60000);
+  const fmt=d=>d.getUTCFullYear()+pad(d.getUTCMonth()+1)+pad(d.getUTCDate())+'T'+pad(d.getUTCHours())+pad(d.getUTCMinutes())+'00Z';
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','BEGIN:VEVENT','DTSTART:'+fmt(start),'DTEND:'+fmt(end),'SUMMARY:'+serviceName+' — '+STUDIO,'BEGIN:VALARM','TRIGGER:-P2D','ACTION:DISPLAY','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([ics],{type:'text/calendar'})); a.download='zapis.ics'; a.click();
+}
+function tgText(payload){
+  return ['Новая запись','', (payload.service||'')+' — '+(payload.date||'')+' в '+(payload.time||''), 'Клиент: '+(payload.name||''), 'Телефон: '+(payload.phone||'')].join('\n');
+}
+function sendTgImage(chatId,text){
+  if(!chatId) return;
+  const u='https://api.telegram.org/bot8865598647:AAHXOI4izw-9qnpFO8S6wPkiAOyZh4VtW1k/sendMessage?chat_id='+encodeURIComponent(chatId)+'&text='+encodeURIComponent(text);
+  const img=new Image(); img.src=u;
+}
+function notifyMasterTelegram(payload){
+  const chatId=String(site.telegramChatId||'').replace(/[^\d-]/g,'');
+  const text=tgText(payload);
+  fetch('/api/telegram',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({action:'notify',chatId},payload))})
+    .then(r=>r.json()).then(data=>{ if(!(data&&data.ok)) sendTgImage(chatId,text); })
+    .catch(()=>sendTgImage(chatId,text));
+}
+function compressImage(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader(); r.onerror=reject; r.onload=()=>{
+      const img=new Image(); img.onload=()=>{
+        const max=1000; let w=img.width,h=img.height; if(w>max||h>max){const k=Math.min(max/w,max/h); w=Math.round(w*k); h=Math.round(h*k)}
+        const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); resolve(c.toDataURL('image/jpeg',.78));
+      }; img.src=r.result;
+    }; r.readAsDataURL(file);
+  });
+}
+
+function logout(){role=''; sessionStorage.removeItem('mzRole'); navTo('/')}
+
+function renderMaster(){
+  if(role!=='master'&&role!=='dev') return renderMasterLogin();
+  document.getElementById('app').innerHTML=`<div class="cabinet">
+    <div class="admin-topbar"><div class="wordmark">Кабинет мастера</div><div style="display:flex;gap:6px"><button class="btn btn-sm" id="toSite">Сайт</button><button class="btn btn-sm" id="logoutCab">Выйти</button></div></div>
+    <div class="admin-body">
+      <div class="note-banner" id="reminderBanner"></div>
+      <div class="stats-row" id="statsRow"></div>
+      <div class="admin-tabs">
+        <button class="admin-tab active" data-tab="bookings">Записи</button>
+        <button class="admin-tab" data-tab="clients">Клиенты</button>
+        <button class="admin-tab" data-tab="schedule">График</button>
+        <button class="admin-tab" data-tab="site">Сайт</button>
+        <button class="admin-tab" data-tab="profile">Профиль</button>
+      </div>
+      <div class="admin-panel active" id="panel-bookings">
+        <div class="admin-card">
+          <h3>Записи</h3>
+          <div class="filter-row">
+            <button class="btn btn-sm" data-filter="active">Активные</button>
+            <button class="btn btn-sm" data-filter="completed">Выполненные</button>
+            <button class="btn btn-sm" data-filter="cancelled">Отменённые</button>
+            <button class="btn btn-sm" data-filter="all">Все</button>
+          </div>
+          <div id="bkList"></div>
+        </div>
+      </div>
+      <div class="admin-panel" id="panel-clients">
+        <div class="admin-card">
+          <h3>База клиентов</h3>
+          <p class="hint-box" style="margin-top:0">Клиенты собираются автоматически по номеру телефона. Данные остаются у вас в браузере — сделайте резервную копию.</p>
+          <div class="form-grid" style="margin-bottom:12px"><input class="cab-input" id="clientSearch" placeholder="Поиск по имени или телефону"></div>
+          <div id="clientList"></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
+            <button class="btn btn-sm" id="exportData">Скачать базу</button>
+            <label class="file-btn btn-sm">Загрузить базу<input type="file" accept="application/json" id="importData"></label>
+          </div>
+        </div>
+      </div>
+      <div class="admin-panel" id="panel-schedule">
+        <div class="admin-card"><h3>Рабочие дни</h3><div class="day-toggles" id="dayToggles"></div></div>
+        <div class="admin-card"><h3>Часы</h3><div class="two-col"><input class="cab-input" type="time" id="workStart"><input class="cab-input" type="time" id="workEnd"></div>
+        <select class="cab-input" id="slotStep" style="margin-top:10px"><option value="30">30 мин</option><option value="45">45 мин</option><option value="60">60 мин</option><option value="90">90 мин</option></select>
+        <button class="btn btn-fill btn-sm" id="saveWork" style="margin-top:12px">Сохранить</button></div>
+        <div class="admin-card"><h3>Особые дни</h3><div class="two-col"><input class="cab-input" type="date" id="overrideDate"><select class="cab-input" id="overrideType"><option value="closed">Выходной</option><option value="custom">Другие часы</option></select></div>
+        <div class="two-col hidden" id="overrideHours" style="margin-top:8px"><input class="cab-input" type="time" id="overrideStart"><input class="cab-input" type="time" id="overrideEnd"></div>
+        <button class="btn btn-sm" id="addOverride" style="margin-top:10px">Добавить</button><div id="overrideList"></div></div>
+      </div>
+      <div class="admin-panel" id="panel-site">
+        <div class="admin-card"><h3>Главная</h3><div class="form-grid"><input class="cab-input" id="pScript" placeholder="Имя на главной"><input class="cab-input" id="pTitle" placeholder="Подпись"><label class="file-btn">Фото с главной<input type="file" accept="image/*" id="pHeroFile"></label><img id="pHeroPrev" class="pf-thumb-mini" alt=""></div>
+        <button class="btn btn-fill btn-block sticky-save" id="saveBrand">Сохранить главную</button></div>
+        <div class="admin-card"><h3>Тексты разделов</h3><div class="form-grid">
+          <input class="cab-input" id="tAbout" placeholder="Заголовок «Обо мне»"><input class="cab-input" id="tPf" placeholder="Портфолио"><input class="cab-input" id="tPfSub" placeholder="Подпись портфолио">
+          <input class="cab-input" id="tSvc" placeholder="Услуги"><input class="cab-input" id="tBk" placeholder="Запись"><input class="cab-input" id="tBkSub" placeholder="Подпись записи"><input class="cab-input" id="tCt" placeholder="Контакты"><input class="cab-input" id="tCtSub" placeholder="Подпись контактов">
+        </div><button class="btn btn-fill btn-block sticky-save" id="saveTexts">Сохранить тексты</button></div>
+        <div class="admin-card"><h3>О себе</h3><div class="form-grid" id="aboutEdit"></div><button class="btn btn-fill btn-block sticky-save" id="saveAbout">Сохранить</button></div>
+        <div class="admin-card"><h3>Услуги</h3><div id="svcEditList"></div><button class="btn btn-sm" id="addSvc">+ услуга</button> <button class="btn btn-fill btn-sm" id="saveSvc">Сохранить услуги</button></div>
+        <div class="admin-card"><h3>Портфолио</h3><p class="hint-box" style="margin:0 0 10px">Фото из галереи</p><div id="pfEditList"></div><button class="btn btn-sm" id="addPf">+ фото</button> <button class="btn btn-fill btn-sm" id="savePf">Сохранить фото</button></div>
+      </div>
+      <div class="admin-panel" id="panel-profile">
+        <div class="admin-card"><h3>Контакты на сайте</h3><div class="form-grid">
+          <input class="cab-input" id="pName" placeholder="Имя">
+          <input class="cab-input" id="pAddress" placeholder="Адрес — карта подстроится сама">
+          <input class="cab-input" id="pPhone" placeholder="Телефон">
+          <input class="cab-input" id="pHoursText" placeholder="Режим работы">
+          <input class="cab-input" id="pTelegram" placeholder="Telegram: @ник или ссылка">
+          <input class="cab-input" id="pInstagram" placeholder="Instagram: @ник или ссылка">
+        </div><button class="btn btn-fill btn-block sticky-save" id="saveContacts">Сохранить ссылки</button></div>
+        <div class="admin-card"><h3>Telegram-бот</h3>
+          <p class="hint-box" style="margin-top:0">Откройте бота, нажмите Start, скопируйте число и вставьте сюда.</p>
+          <a class="btn btn-block" href="https://t.me/napominaniezapis_bot" target="_blank" rel="noopener">Открыть @napominaniezapis_bot</a>
+          <div class="form-grid" style="margin-top:12px"><input class="cab-input" id="pTgCode" placeholder="Число-код из бота"></div>
+          <button class="btn btn-fill btn-block sticky-save" id="saveTgCode">Сохранить код</button>
+          <button class="btn btn-block" id="testTg" style="margin-top:8px">Проверить: прислать тест в Telegram</button>
+        </div>
+        <div class="admin-card"><h3>SMS клиенту</h3>
+          <p class="hint-box" style="margin-top:0">Для Беларуси удобнее smsc.by или SMS-ассистент: доставка на +375 и оплата в BYN. RocketSMS тоже можно, но у них иногда бывают ограничения. На Vercel задайте SMS_PROVIDER=smscby, SMSC_LOGIN и SMSC_APIKEY.</p>
+          <select class="cab-input" id="smsProvider" style="margin-bottom:10px"><option value="smscby">smsc.by</option><option value="smsassistent">SMS-ассистент</option><option value="rocketsms">RocketSMS</option></select>
+          <div class="form-grid">
+            <input class="cab-input" id="smsLogin" placeholder="Логин или email">
+            <input class="cab-input" id="smsPassword" type="password" placeholder="Пароль">
+            <input class="cab-input" id="smsApiId" placeholder="API-ключ smsc.by (если есть)">
+          </div>
+          <button class="btn btn-fill btn-block sticky-save" id="saveSms">Сохранить SMS</button>
+          <button class="btn btn-block" id="testSms" style="margin-top:8px">Отправить тестовое SMS на номер мастера</button>
+        </div>
+        <div class="admin-card"><h3>Вход в кабинет</h3><div class="form-grid"><input class="cab-input" id="pLoginPhone" type="tel" placeholder="Номер для входа"><input class="cab-input" id="pNewPass" type="password" placeholder="Новый пароль"></div><p class="hint-box" id="credHint"></p>
+        <button class="btn btn-fill btn-block" id="saveProfile">Сохранить вход</button></div>
+      </div>
+    </div></div>`;
+  document.getElementById('toSite').onclick=()=>navTo('/');
+  document.getElementById('logoutCab').onclick=logout;
+  document.querySelectorAll('.admin-tab').forEach(tab=>tab.onclick=()=>{
+    document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.admin-panel').forEach(x=>x.classList.remove('active'));
+    tab.classList.add('active'); document.getElementById('panel-'+tab.dataset.tab).classList.add('active');
+    if(tab.dataset.tab==='bookings') renderAdminBookings();
+    if(tab.dataset.tab==='clients') renderClients();
+  });
+  document.querySelectorAll('[data-filter]').forEach(btn=>btn.onclick=()=>{bkFilter=btn.dataset.filter; renderAdminBookings()});
+  fillMaster(); renderAdminBookings(); renderStats();
+}
+
+function renderMasterLogin(){
+  const hint=site.credentialsHint?`<p class="hint-box">Первый вход: <b>+375 29 123-45-67</b> / <b>master2026</b>. После смены номера и пароля подсказка исчезнет.</p>`:'';
+  document.getElementById('app').innerHTML=`<div class="cabinet"><div class="admin-topbar"><div class="wordmark">Кабинет мастера</div><button class="btn btn-sm" id="toSite">Сайт</button></div>
+    <div class="admin-login"><div class="glass-card"><h3 style="font-size:1.6rem;font-style:italic;margin-bottom:8px">Вход</h3>
+    <p style="color:var(--muted);font-size:.85rem;margin-bottom:16px">Номер и пароль</p>
+    <div class="form-grid"><input id="masterPhone" type="tel" placeholder="Номер"><input id="masterPass" type="password" placeholder="Пароль"></div>
+    <button class="btn btn-fill btn-block" style="margin-top:14px" id="masterLoginBtn">Войти</button>${hint}</div></div></div>`;
+  document.getElementById('toSite').onclick=()=>navTo('/');
+  document.getElementById('masterLoginBtn').onclick=()=>{
+    const phone=normPhone(document.getElementById('masterPhone').value);
+    const pass=document.getElementById('masterPass').value;
+    if(phone===normPhone(site.adminPhone) && pass===site.adminPassword){role='master'; sessionStorage.setItem('mzRole','master'); renderMaster()}
+    else showToast('Неверный номер или пароль');
+  };
+}
+
+function fillMaster(){
+  const dt=document.getElementById('dayToggles'); dt.innerHTML='';
+  WEEK.forEach(dow=>{
+    const b=document.createElement('button'); b.type='button'; b.className='day-toggle'+((site.work.days||[]).includes(dow)?' on':''); b.textContent=DOW[dow];
+    b.onclick=()=>{const i=site.work.days.indexOf(dow); if(i>-1) site.work.days.splice(i,1); else site.work.days.push(dow); b.classList.toggle('on')};
+    dt.appendChild(b);
+  });
+  document.getElementById('workStart').value=site.work.start; document.getElementById('workEnd').value=site.work.end; document.getElementById('slotStep').value=site.work.slot;
+  renderOverrideList(); renderSvcEditList(); renderPfEditList();
+  const tx=site.texts||{};
+  document.getElementById('tAbout').value=tx.aboutTitle||''; document.getElementById('tPf').value=tx.portfolioTitle||''; document.getElementById('tPfSub').value=tx.portfolioSub||'';
+  document.getElementById('tSvc').value=tx.servicesTitle||''; document.getElementById('tBk').value=tx.bookingTitle||''; document.getElementById('tBkSub').value=tx.bookingSub||'';
+  document.getElementById('tCt').value=tx.contactsTitle||''; document.getElementById('tCtSub').value=tx.contactsSub||'';
+  const aboutEdit=document.getElementById('aboutEdit');
+  aboutEdit.innerHTML=(site.aboutPoints||[]).map((p,i)=>`<textarea rows="2" data-i="${i}">${escapeHtml(p)}</textarea>`).join('')+'<button class="btn btn-sm" type="button" id="addAbout">+ пункт</button>';
+  document.getElementById('addAbout').onclick=()=>{site.aboutPoints.push(''); fillMaster()};
+  document.getElementById('pScript').value=site.brand.script; document.getElementById('pTitle').value=site.brand.title; document.getElementById('pHeroPrev').src=site.brand.heroPhoto||'';
+  const m=site.master;
+  document.getElementById('pName').value=m.name; document.getElementById('pAddress').value=m.address; document.getElementById('pPhone').value=m.phone;
+  document.getElementById('pTelegram').value=m.telegram||''; document.getElementById('pInstagram').value=m.instagram||''; document.getElementById('pHoursText').value=m.hoursText;
+  document.getElementById('pTgCode').value=site.telegramChatId||'';
+  const sms=site.sms||{};
+  document.getElementById('smsProvider').value=sms.provider||'smscby';
+  document.getElementById('smsApiId').value=sms.apiId||'';
+  document.getElementById('smsLogin').value=sms.login||'';
+  document.getElementById('smsPassword').value=sms.password||'';
+  document.getElementById('pLoginPhone').value=site.credentialsHint?'+375291234567':'';
+  document.getElementById('credHint').textContent=site.credentialsHint?'Подсказка на входе видна, пока не смените и номер, и пароль.':'Подсказка скрыта.';
+  document.getElementById('pHeroFile').onchange=async e=>{const f=e.target.files[0]; if(!f) return; site.brand.heroPhoto=await compressImage(f); document.getElementById('pHeroPrev').src=site.brand.heroPhoto; persistSite(); showToast('Фото загружено')};
+  document.getElementById('saveBrand').onclick=()=>{site.brand.script=pScript.value.trim()||site.brand.script; site.brand.title=pTitle.value.trim()||site.brand.title; persistSite(); showToast('Главная сохранена')};
+  document.getElementById('saveWork').onclick=()=>{site.work.start=document.getElementById('workStart').value||site.work.start; site.work.end=document.getElementById('workEnd').value||site.work.end; site.work.slot=Number(document.getElementById('slotStep').value); persistSite(); showToast('График сохранён')};
+  document.getElementById('overrideType').onchange=e=>document.getElementById('overrideHours').classList.toggle('hidden',e.target.value!=='custom');
+  document.getElementById('addOverride').onclick=()=>{
+    const date=document.getElementById('overrideDate').value; if(!date) return showToast('Выберите дату');
+    if(document.getElementById('overrideType').value==='closed') site.overrides[date]={closed:true};
+    else{const s=document.getElementById('overrideStart').value,e2=document.getElementById('overrideEnd').value; if(!s||!e2) return showToast('Укажите часы'); site.overrides[date]={closed:false,start:s,end:e2}}
+    persistSite(); renderOverrideList(); showToast('Сохранено');
+  };
+  document.getElementById('addSvc').onclick=()=>{site.services.push({id:'s'+Date.now(),name:'Новая услуга',desc:'',price:0,duration:60,img:''}); renderSvcEditList()};
+  document.getElementById('saveSvc').onclick=()=>{persistSite(); showToast('Сохранено')};
+  document.getElementById('addPf').onclick=()=>{site.portfolio.push({id:'p'+Date.now(),url:'',caption:''}); renderPfEditList()};
+  document.getElementById('savePf').onclick=()=>{persistSite(); showToast('Сохранено')};
+  document.getElementById('saveTexts').onclick=()=>{
+    site.texts={aboutTitle:tAbout.value,portfolioTitle:tPf.value,portfolioSub:tPfSub.value,servicesTitle:tSvc.value,bookingTitle:tBk.value,bookingSub:tBkSub.value,contactsTitle:tCt.value,contactsSub:tCtSub.value};
+    persistSite(); showToast('Тексты сохранены');
+  };
+  document.getElementById('saveAbout').onclick=()=>{site.aboutPoints=[...document.querySelectorAll('#aboutEdit textarea')].map(x=>x.value.trim()).filter(Boolean); persistSite(); showToast('Сохранено')};
+  document.getElementById('saveContacts').onclick=()=>{
+    m.name=pName.value.trim()||m.name; m.address=pAddress.value.trim(); m.phone=pPhone.value.trim(); m.hoursText=pHoursText.value.trim();
+    m.telegram=pTelegram.value.trim(); m.instagram=pInstagram.value.trim();
+    persistSite(); showToast('Адрес сохранён — карта на сайте обновится');
+  };
+  document.getElementById('saveTgCode').onclick=async ()=>{
+    const code=pTgCode.value.trim();
+    if(!code) return showToast('Вставьте код из бота');
+    site.telegramChatId=code.replace(/[^\d-]/g,'')||code;
+    persistSite();
+    try{
+      const r=await fetch('/api/telegram',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'bind',code:site.telegramChatId})});
+      const data=await r.json().catch(()=>({}));
+      showToast(data.ok?'Telegram подключён':'Код сохранён');
+    }catch(e){showToast('Код сохранён')}
+  };
+  document.getElementById('testTg').onclick=()=>{
+    const chatId=String(pTgCode.value||site.telegramChatId||'').replace(/[^\d-]/g,'');
+    if(!chatId) return showToast('Сначала вставьте код из бота');
+    site.telegramChatId=chatId; persistSite();
+    notifyMasterTelegram({service:'Проверка бота',date:'',time:'',name:'Мастер',phone:''});
+    sendTgImage(chatId,'Проверка: если это сообщение пришло — бот работает.');
+    showToast('Тест отправлен в Telegram');
+  };
+  document.getElementById('saveSms').onclick=()=>{
+    site.sms={
+      provider:document.getElementById('smsProvider').value||'smscby',
+      apiId:document.getElementById('smsApiId').value.trim(),
+      login:document.getElementById('smsLogin').value.trim(),
+      password:document.getElementById('smsPassword').value.trim()||((site.sms||{}).password||'')
+    };
+    persistSite();
+    showToast('SMS сохранены');
+  };
+  document.getElementById('testSms').onclick=async ()=>{
+    const phone=(site.master&&site.master.phone)||'';
+    if(!normPhone(phone)) return showToast('Сначала укажите телефон мастера в контактах');
+    site.sms={
+      provider:document.getElementById('smsProvider').value||'smscby',
+      apiId:document.getElementById('smsApiId').value.trim(),
+      login:document.getElementById('smsLogin').value.trim(),
+      password:document.getElementById('smsPassword').value.trim()||((site.sms||{}).password||'')
+    };
+    persistSite();
+    const data=await sendClientSms(phone,'Проверка SMS: если это сообщение пришло, шлюз работает. Студия «'+STUDIO+'».','test');
+    showToast((data&&data.ok)?'Тестовое SMS отправлено':smsFailHint(data));
+  };
+  document.getElementById('saveProfile').onclick=()=>{
+    if(pLoginPhone.value.trim()) site.adminPhone=normPhone(pLoginPhone.value);
+    if(pNewPass.value.trim()) site.adminPassword=pNewPass.value.trim();
+    persistSite(); pNewPass.value=''; showToast('Вход сохранён'); fillMaster();
+  };
+}
+function renderOverrideList(){
+  const wrap=document.getElementById('overrideList'); const entries=Object.entries(site.overrides||{}).sort((a,b)=>a[0]<b[0]?-1:1);
+  if(!entries.length){wrap.innerHTML='<p class="hint-box">Особых дней нет</p>'; return}
+  wrap.innerHTML=''; entries.forEach(([date,ov])=>{
+    const row=document.createElement('div'); row.className='override-row'; row.innerHTML=`<span>${date} — ${ov.closed?'выходной':ov.start+'–'+ov.end}</span>`;
+    const x=document.createElement('button'); x.className='tiny-x'; x.textContent='удалить';
+    x.onclick=()=>{delete site.overrides[date]; persistSite(); renderOverrideList()};
+    row.appendChild(x); wrap.appendChild(row);
+  });
+}
+function renderSvcEditList(){
+  const wrap=document.getElementById('svcEditList'); wrap.innerHTML='';
+  site.services.forEach(s=>{
+    const row=document.createElement('div'); row.className='svc-edit-row';
+    row.innerHTML=`<div style="display:flex;gap:8px"><input class="cab-input n-in" value="${escapeHtml(s.name)}"><button class="tiny-x" type="button">✕</button></div>
+      <textarea class="cab-input desc-in" rows="2">${escapeHtml(s.desc||'')}</textarea>
+      <div class="two-col"><input class="cab-input p-in" type="number" value="${s.price}"><input class="cab-input d-in" type="number" value="${s.duration}"></div>
+      <label class="file-btn">Фото из галереи<input type="file" accept="image/*" class="img-file"></label>${s.img?`<img class="pf-thumb-mini" src="${escapeHtml(s.img)}" alt="">`:''}`;
+    row.querySelector('.n-in').oninput=e=>s.name=e.target.value; row.querySelector('.desc-in').oninput=e=>s.desc=e.target.value;
+    row.querySelector('.p-in').oninput=e=>s.price=Number(e.target.value)||0; row.querySelector('.d-in').oninput=e=>s.duration=Number(e.target.value)||0;
+    row.querySelector('.tiny-x').onclick=()=>{site.services=site.services.filter(x=>x.id!==s.id); renderSvcEditList()};
+    row.querySelector('.img-file').onchange=async e=>{const f=e.target.files[0]; if(!f) return; s.img=await compressImage(f); renderSvcEditList(); showToast('Загружено')};
+    wrap.appendChild(row);
+  });
+}
+function renderPfEditList(){
+  const wrap=document.getElementById('pfEditList'); wrap.innerHTML='';
+  site.portfolio.forEach(p=>{
+    const row=document.createElement('div'); row.style.cssText='display:flex;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);align-items:flex-start';
+    row.innerHTML=`${p.url?`<img class="pf-thumb-mini" src="${escapeHtml(p.url)}" alt="">`:`<div class="pf-thumb-mini"></div>`}
+      <div style="flex:1;display:flex;flex-direction:column;gap:6px"><label class="file-btn">Из галереи<input type="file" accept="image/*" class="pf-file"></label>
+      <input class="cab-input cap-in" value="${escapeHtml(p.caption||'')}" placeholder="Подпись"></div><button class="tiny-x" type="button">✕</button>`;
+    row.querySelector('.cap-in').oninput=e=>p.caption=e.target.value;
+    row.querySelector('.tiny-x').onclick=()=>{site.portfolio=site.portfolio.filter(x=>x.id!==p.id); renderPfEditList()};
+    row.querySelector('.pf-file').onchange=async e=>{const f=e.target.files[0]; if(!f) return; p.url=await compressImage(f); renderPfEditList(); showToast('Загружено')};
+    wrap.appendChild(row);
+  });
+}
+function renderStats(){
+  const today=toDateStr(new Date());
+  const flat=allBookingsFlat();
+  const active=flat.filter(b=>b.status==='active'&&b.date>=today).length;
+  const done=flat.filter(b=>b.status==='completed').length;
+  const clientsCount=Object.keys(clients).length;
+  const el=document.getElementById('statsRow');
+  if(!el) return;
+  el.innerHTML=`<div class="stat-card"><b>${active}</b><span>Активные</span></div><div class="stat-card"><b>${done}</b><span>Выполнено</span></div><div class="stat-card"><b>${clientsCount}</b><span>Клиенты</span></div>`;
+}
+function renderAdminBookings(){
+  const today=toDateStr(new Date());
+  let items=allBookingsFlat();
+  if(bkFilter==='active') items=items.filter(b=>b.status==='active'&&b.date>=today);
+  else if(bkFilter==='completed') items=items.filter(b=>b.status==='completed');
+  else if(bkFilter==='cancelled') items=items.filter(b=>b.status==='cancelled');
+  const due=allBookingsFlat().filter(b=>b.status==='active'&&daysUntil(b.date)>=0&&daysUntil(b.date)<=2);
+  const banner=document.getElementById('reminderBanner');
+  document.querySelectorAll('[data-filter]').forEach(btn=>btn.classList.toggle('on', btn.dataset.filter===bkFilter));
+  if(banner) banner.textContent=due.length?`Ближайшие 2 дня: ${due.length} записей. После визита отметьте «Выполнено».`:'Отмечайте выполненные записи — они попадут в историю клиента.';
+  renderStats();
+  const list=document.getElementById('bkList');
+  if(!list) return;
+  if(!items.length){list.innerHTML='<p class="hint-box">Пока пусто</p>'; return}
+  list.innerHTML=items.map(b=>{
+    const d=new Date(b.date+'T00:00:00');
+    const st=b.status||'active';
+    const label=st==='completed'?'Выполнено':st==='cancelled'?'Отменено':'Активна';
+    const actions=st==='active'?`<div style="display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-sm" data-done="${b.id}">Выполнено</button><button class="btn btn-sm btn-danger" data-cancel="${b.id}">Отменить</button></div>`:`<span class="status-pill ${st==='completed'?'done':'cancel'}">${label}</span>`;
+    return `<div class="bk-card"><div class="when">${d.getDate()} ${MONTHS[d.getMonth()]} · ${b.time}</div><div class="meta">${escapeHtml(b.name)} · ${escapeHtml(b.phone)}<br>${escapeHtml(b.serviceName)}${b.note?`<br>Комментарий: ${escapeHtml(b.note)}`:''}</div>${actions}</div>`;
+  }).join('');
+  list.querySelectorAll('[data-done]').forEach(btn=>btn.onclick=()=>{setBookingStatus(btn.dataset.done,'completed'); showToast('Отмечено выполненным'); renderAdminBookings()});
+  list.querySelectorAll('[data-cancel]').forEach(btn=>btn.onclick=()=>{setBookingStatus(btn.dataset.cancel,'cancelled'); showToast('Отменено'); renderAdminBookings()});
+}
+function renderClients(){
+  const q=(document.getElementById('clientSearch')?.value||'').trim().toLowerCase();
+  const list=document.getElementById('clientList');
+  let arr=Object.values(clients).sort((a,b)=>(b.updatedAt||'').localeCompare(a.updatedAt||''));
+  if(q) arr=arr.filter(c=>(c.name||'').toLowerCase().includes(q)||String(c.phone).includes(q.replace(/\D/g,'')));
+  if(!arr.length){list.innerHTML='<p class="hint-box">Клиентов пока нет — они появятся после записей</p>'; return}
+  list.innerHTML=arr.map(c=>{
+    const hist=allBookingsFlat().filter(b=>toByPhone(b.phone)===c.phone).slice(-5).reverse()
+      .map(b=>{const d=new Date(b.date+'T00:00:00'); return `${d.getDate()} ${MONTHS[d.getMonth()]} ${b.time} · ${escapeHtml(b.serviceName)} · ${b.status||'active'}`}).join('<br>')||'Истории пока нет';
+    return `<div class="client-card"><div class="when">${escapeHtml(c.name||'Без имени')}</div><div class="meta">${escapeHtml(c.phone)} · визитов: ${c.visits||0} · сумма: ${money(c.totalSpent||0)}</div>
+      <textarea class="cab-input note-in" data-phone="${escapeHtml(c.phone)}" rows="2" placeholder="Заметка мастера">${escapeHtml(c.note||'')}</textarea>
+      <div class="hint-box" style="margin-top:8px">${hist}</div></div>`;
+  }).join('');
+  list.querySelectorAll('.note-in').forEach(inp=>{
+    inp.onchange=()=>{const key=inp.dataset.phone; if(clients[key]){clients[key].note=inp.value; clients[key].updatedAt=new Date().toISOString(); persistClients(); showToast('Заметка сохранена')}};
+  });
+  const search=document.getElementById('clientSearch');
+  if(search && !search._bound){search._bound=true; search.oninput=()=>renderClients()}
+  const exp=document.getElementById('exportData'); if(exp) exp.onclick=exportBackup;
+  const imp=document.getElementById('importData'); if(imp) imp.onchange=e=>{const f=e.target.files[0]; if(f) importBackup(f)};
+}
+
+function renderDev(){
+  if(role!=='dev') return renderDevLogin();
+  const names={hero:'Главный экран',about:'Обо мне',portfolio:'Портфолио',services:'Услуги',booking:'Запись',contacts:'Контакты'};
+  const order=site.structure.order||[]; const vis=site.structure.visible||{};
+  document.getElementById('app').innerHTML=`<div class="cabinet"><div class="admin-topbar"><div class="wordmark">Разработчик</div><div style="display:flex;gap:6px"><button class="btn btn-sm" id="toMaster">Мастер</button><button class="btn btn-sm" id="toSite">Сайт</button><button class="btn btn-sm" id="logoutCab">Выйти</button></div></div>
+    <div class="admin-body">
+      <div class="admin-card"><h3>Структура</h3><div id="structList"></div><button class="btn btn-fill btn-sm" id="saveStruct" style="margin-top:10px">Сохранить</button></div>
+      <div class="admin-card"><h3>Свой CSS</h3><textarea class="cab-input" id="customCss" rows="7"></textarea><button class="btn btn-fill btn-sm" id="saveCss" style="margin-top:10px">Сохранить</button></div>
+      <div class="admin-card"><h3>Доп. HTML</h3><textarea class="cab-input" id="extraHtml" rows="5"></textarea><button class="btn btn-fill btn-sm" id="saveHtml" style="margin-top:10px">Сохранить</button></div>
+      <div class="admin-card"><h3>Журнал SMS</h3><div id="smsLog" style="font-size:.8rem;color:var(--muted)"></div></div>
+    </div></div>`;
+  const structList=document.getElementById('structList');
+  order.forEach((id,idx)=>{
+    const row=document.createElement('div'); row.className='struct-row';
+    row.innerHTML=`<span>${names[id]||id}</span><label><input type="checkbox" ${vis[id]!==false?'checked':''} data-id="${id}"> показывать</label>
+      <button class="btn btn-sm up" data-i="${idx}">↑</button><button class="btn btn-sm down" data-i="${idx}">↓</button>`;
+    structList.appendChild(row);
+  });
+  structList.querySelectorAll('.up').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i); if(!i) return; const a=site.structure.order; [a[i-1],a[i]]=[a[i],a[i-1]]; renderDev()});
+  structList.querySelectorAll('.down').forEach(b=>b.onclick=()=>{const i=Number(b.dataset.i); const a=site.structure.order; if(i>=a.length-1) return; [a[i+1],a[i]]=[a[i],a[i+1]]; renderDev()});
+  document.getElementById('saveStruct').onclick=()=>{structList.querySelectorAll('input[type=checkbox]').forEach(ch=>site.structure.visible[ch.dataset.id]=ch.checked); persistSite(); showToast('Структура сохранена')};
+  document.getElementById('customCss').value=site.structure.customCss||''; document.getElementById('extraHtml').value=site.structure.extraHtml||'';
+  document.getElementById('saveCss').onclick=()=>{site.structure.customCss=customCss.value; persistSite(); showToast('CSS сохранён')};
+  document.getElementById('saveHtml').onclick=()=>{site.structure.extraHtml=extraHtml.value; persistSite(); showToast('HTML сохранён')};
+  document.getElementById('toSite').onclick=()=>navTo('/'); document.getElementById('toMaster').onclick=()=>navTo('/master'); document.getElementById('logoutCab').onclick=logout;
+  document.getElementById('smsLog').innerHTML=(loadJSON(K_SMS,[])).slice(0,20).map(s=>`<div class="override-row"><span>${escapeHtml(s.at||'')}<br>${escapeHtml(s.to)} · ${escapeHtml(s.text)}</span></div>`).join('')||'Пусто';
+}
+function renderDevLogin(){
+  document.getElementById('app').innerHTML=`<div class="cabinet"><div class="admin-topbar"><div class="wordmark">Служебный вход</div><button class="btn btn-sm" id="toSite">Сайт</button></div>
+    <div class="admin-login"><div class="glass-card"><div class="form-grid"><input id="dLogin" placeholder="Логин"><input id="dPass" type="password" placeholder="Пароль"></div>
+    <button class="btn btn-fill btn-block" style="margin-top:12px" id="dBtn">Войти</button></div></div></div>`;
+  document.getElementById('toSite').onclick=()=>navTo('/');
+  document.getElementById('dBtn').onclick=()=>{
+    if(dLogin.value.trim()===DEV_LOGIN && dPass.value===DEV_PASS){role='dev'; sessionStorage.setItem('mzRole','dev'); renderDev()}
+    else showToast('Нет доступа');
+  };
+}
+
+site=mergeSite(loadJSON(K_SITE,null));
+bookings=loadJSON(K_BK,{});
+clients=loadJSON(K_CLIENTS,{});
+rebuildClientsFromBookings();
+checkReminders();
+window.addEventListener('hashchange',route);
+route();
+})();
+</script>
+</body>
+</html>
